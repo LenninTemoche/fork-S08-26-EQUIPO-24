@@ -8,7 +8,7 @@ def render_sensor_chart(df_telemetry, machine_id):
     """Muestra un gráfico de línea con la telemetría de una máquina.
 
     Args:
-        df_telemetry: DataFrame con columnas machine_id, timestamp, temperature, vibration, pressure.
+        df_telemetry: DataFrame con columnas machine_id, timestamp, voltage, vibration, pressure.
         machine_id: ID de la máquina seleccionada.
     """
     # Asegurar consistencia en el nombre de la columna
@@ -26,7 +26,7 @@ def render_sensor_chart(df_telemetry, machine_id):
     # Selector de variable
     sensor = st.selectbox(
         ' Variable a graficar',
-        options=['temperature', 'vibration', 'pressure'],
+        options=['voltage', 'vibration', 'pressure'],
         index=0,
         key=f'sensor_{machine_id}'
     )
@@ -42,6 +42,6 @@ def render_sensor_chart(df_telemetry, machine_id):
     with st.expander(' Ver último registro'):
         latest = df_machine.iloc[-1]
         st.write(f'**Fecha:** {latest["timestamp"].strftime("%Y-%m-%d %H:%M")}')
-        st.write(f'**Temperatura:** {latest["temperature"]:.1f} °C')
+        st.write(f'**Voltaje:** {latest["voltage"]:.1f} V')
         st.write(f'**Vibración:** {latest["vibration"]:.2f} mm/s')
         st.write(f'**Presión:** {latest["pressure"]:.1f} bar')

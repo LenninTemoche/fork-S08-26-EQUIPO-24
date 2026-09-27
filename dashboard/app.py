@@ -7,6 +7,7 @@ import streamlit as st
 from components.machine_detail import render_machine_detail
 from components.sensor_chart import render_sensor_chart
 from components.risk_table import render_risk_table
+from components.demo_simulator import render_demo_simulator, simulation_snapshot
 from utils.data_loader import compute_risk_from_model, get_priority_machine, load_live_demo_data
 from utils.model_loader import get_model
 
@@ -201,7 +202,7 @@ def render_risk_legend():
 def telemetry_figure(df_selected):
     figure = go.Figure()
     series = [
-        ("temperature", "Temperatura (°C)", "#ffb4ab", "solid", "y"),
+        ("voltage", "Voltaje", "#ffb4ab", "solid", "y"),
         ("vibration", "Vibración (mm/s)", "#4d8eff", "solid", "y2"),
         ("pressure", "Presión (bar)", "#a4c9ff", "dash", "y3"),
     ]
@@ -219,7 +220,7 @@ def telemetry_figure(df_selected):
         font={"family":"JetBrains Mono", "color":"#dae2fd", "size":10},
         legend={"orientation":"h", "y":1.1, "x":0},
         xaxis={"gridcolor":"rgba(140,144,159,.12)", "showgrid":True},
-        yaxis={"title":{"text":"Temperatura", "font":{"color":"#ffb4ab"}}, "gridcolor":"rgba(140,144,159,.12)"},
+        yaxis={"title":{"text":"Voltaje", "font":{"color":"#ffb4ab"}}, "gridcolor":"rgba(140,144,159,.12)"},
         yaxis2={"title":{"text":"Vibración", "font":{"color":"#4d8eff"}}, "overlaying":"y", "side":"right", "showgrid":False},
         yaxis3={"overlaying":"y", "side":"right", "position":.96, "showgrid":False, "showticklabels":False},
     )
@@ -374,7 +375,8 @@ def render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols
 try:
     with st.spinner("Cargando datos y modelo..."):
         live_df, data_source = load_live_demo_data()
-        df_machines, df_risk, df_telemetry, df_errors = compute_risk_from_model(live_df)
+        dashboard_live_df = simulation_snapshot(live_df)
+        df_machines, df_risk, df_telemetry, df_errors = compute_risk_from_model(dashboard_live_df)
         model, feature_cols, meta, model_source = get_model()
 except Exception as error:
     st.error(f"Error al cargar datos o modelo: {error}")
@@ -456,25 +458,19 @@ if st.session_state.active_section == "overview":
         render_risk_table(overview_risk, selected_status, selected_criticality)
 
 if st.session_state.active_section == "telemetry":
-    tone = risk_pill(selected_risk["risk_level"])
-    st.markdown(f"<div class='telemetry-head'><div><span class='machine-tag'>{html.escape(selected_machine)}</span><div><h2>Telemetría de demostración</h2><p>Serie histórica del dataset · Activo seleccionado</p></div></div><div><span class='pill'>LIVE_DEMO</span><span class='pill {tone}'>{html.escape(selected_risk['risk_level']).upper()}</span></div></div>", unsafe_allow_html=True)
-    df_selected = df_telemetry[df_telemetry["machine_id"] == selected_machine].sort_values("timestamp")
-    chart_col, detail_col = st.columns([2, 1])
-    with chart_col:
-        st.markdown("<div class='chart-label'><span>LECTURAS DEL DATASET</span><span class='eyebrow'>DEMO</span></div>", unsafe_allow_html=True)
-        if not df_selected.empty:
-            st.plotly_chart(telemetry_figure(df_selected), width="stretch", config={"displayModeBar": False})
-    with detail_col:
-        render_machine_detail(df_errors, selected_machine)
-    if not df_selected.empty:
-        latest, previous = df_selected.iloc[-1], df_selected.iloc[0]
-        temp_col, vibration_col, pressure_col = st.columns(3)
-        with temp_col:
-            st.metric("Temperatura husillo", f"{latest['temperature']:.1f} °C", f"{latest['temperature'] - previous['temperature']:+.1f} °C")
-        with vibration_col:
-            st.metric("Vibración cojinete", f"{latest['vibration']:.2f} mm/s", f"{latest['vibration'] - previous['vibration']:+.2f} mm/s", delta_color="inverse")
-        with pressure_col:
-            st.metric("Presión lubricante", f"{latest['pressure']:.1f} bar", f"{latest['pressure'] - previous['pressure']:+.1f} bar")
+    render_demo_simulator(
+        live_df,
+        selected_machine,
+        model,
+        feature_cols,
+        meta.get("decision_threshold", 0.5),
+        lambda chart_rows: st.plotly_chart(
+            telemetry_figure(chart_rows),
+            width="stretch",
+            config={"displayModeBar": False},
+        ),
+    )
+    render_machine_detail(df_errors, selected_machine)
 
 if st.session_state.active_section == "anomalies":
     anomaly_telemetry = df_telemetry[df_telemetry["machine_id"] == selected_machine].sort_values("timestamp")

@@ -257,7 +257,7 @@ def compute_risk_from_model(live_df: pd.DataFrame, prefer_local_model: bool = Fa
     # Seleccionar y renombrar a lo que esperan los componentes
     df_telemetry = live_df[tele_cols].rename(columns={
         'datetime': 'timestamp',
-        'volt': 'temperature',
+        'volt': 'voltage',
         # 'vibration' y 'pressure' mantienen su nombre
     })
     # Asegurar tipos
