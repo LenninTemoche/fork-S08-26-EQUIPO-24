@@ -8,7 +8,12 @@ import streamlit as st
 from components.machine_detail import render_machine_detail
 from components.sensor_chart import render_sensor_chart
 from components.risk_table import render_risk_table
-from components.demo_simulator import PERIOD_HOURS, render_demo_simulator, simulation_snapshot
+from components.demo_simulator import (
+    PERIOD_HOURS,
+    render_demo_simulator,
+    reset_simulation_state,
+    simulation_snapshot,
+)
 from utils.data_loader import compute_risk_from_model, get_priority_machine, load_live_demo_data
 from utils.model_loader import get_model
 
@@ -192,6 +197,16 @@ def risk_color(level):
 
 def risk_pill(level):
     return {"red": "pill-red", "yellow": "pill-yellow", "green": "pill-green"}[risk_tone(level)]
+
+
+def recommended_review_window(df_risk):
+    """Return an operational review window from the current fleet risk levels."""
+    levels = set(df_risk["risk_level"].astype(str))
+    if "Crítico" in levels:
+        return "PRIORITARIA", "Hay activos críticos; revisar cuanto antes", "red"
+    if "Moderado" in levels:
+        return "PRÓXIMAS 24 H", "Inspección recomendada para activos moderados", "orange"
+    return "PREVENTIVA", "Sin alertas prioritarias; mantener rutina habitual", "green"
 
 
 def render_risk_legend():
@@ -392,6 +407,7 @@ def render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols
         model_origin = "GitHub" if str(model_source).lower().startswith("github") else "respaldo local"
         st.markdown(f"<div class='sidebar-info-card'><div class='eyebrow'>MODELO PREDICTIVO</div><div class='source-value'>{html.escape(model_origin)}</div><div class='source-note'>{len(feature_cols)} variables · cálculo de riesgo por activo</div></div>", unsafe_allow_html=True)
         if st.button("Actualizar demo", icon=":material/refresh:", width="stretch"):
+            reset_simulation_state()
             st.cache_data.clear()
             st.cache_resource.clear()
             rerun_app()
@@ -415,8 +431,7 @@ st.markdown("<div class='banner'><div><div class='banner-title'>Monitor Diagnós
 critical_count = int(df_risk["risk_level"].astype(str).str.startswith("Cr").sum())
 avg_risk = float(df_risk["risk_score"].mean())
 selected_risk = df_risk[df_risk["machine_id"] == selected_machine].iloc[0]
-next_date = df_machines["next_maintenance"].min()
-next_date_text = next_date.strftime("%d %b %Y") if not df_machines["next_maintenance"].isna().all() else "N/D"
+review_window, review_detail, review_tone = recommended_review_window(df_risk)
 fleet_top = get_priority_machine(df_risk)
 fleet_tone = "red" if critical_count else "yellow" if (df_risk["risk_level"] == "Moderado").any() else "green"
 fleet_state = {"red": "ACCIÓN REQUERIDA", "yellow": "REVISIÓN RECOMENDADA", "green": "OPERACIÓN NORMAL"}[fleet_tone]
@@ -470,7 +485,7 @@ if st.session_state.active_section == "overview":
     kpi_cards = [
         ("MAQUINAS MONITOREADAS", len(df_machines), f"{len(df_machines)} unidades IoT", "blue", "SCADA ACTIVE"),
         ("RIESGO CRITICO", critical_count, "Intervencion prioritaria" if critical_count else "Sin criticos activos", "red" if critical_count else "green", ""),
-        ("PROXIMO MANTENIMIENTO", next_date_text, "Ventana programada", "orange", ""),
+        ("VENTANA DE REVISIÓN", review_window, review_detail, review_tone, "HORIZONTE 24 H"),
         ("RIESGO PROMEDIO", f"{avg_risk:.1f}%", "Indice global", "red" if fleet_tone == "red" else "orange" if fleet_tone == "yellow" else "green", "FLEET AVG"),
     ]
     for column, card in zip(kpi_columns, kpi_cards):

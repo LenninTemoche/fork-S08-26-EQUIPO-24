@@ -59,6 +59,15 @@ def simulation_snapshot(live_df: pd.DataFrame) -> pd.DataFrame:
     return live_df[live_df["datetime"] <= pd.Timestamp(current_time)]
 
 
+def reset_simulation_state() -> None:
+    """Return the replay controls and current reading to their initial state."""
+    st.session_state[SIM_INDEX_KEY] = -1
+    st.session_state[SIM_TIME_KEY] = None
+    st.session_state[SIM_RUNNING_KEY] = False
+    st.session_state[SIM_ALERT_KEY] = {}
+    st.session_state[PERIOD_KEY] = "24H"
+
+
 def _init_simulation_state(timeline_size: int) -> None:
     st.session_state.setdefault(SIM_INDEX_KEY, -1)
     st.session_state.setdefault(SIM_TIME_KEY, None)
