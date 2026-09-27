@@ -230,29 +230,46 @@ def render_demo_simulator(
         critical_count = int((current_rows["risk_level"] == "Critico").sum())
         moderate_count = int((current_rows["risk_level"] == "Moderado").sum())
         if risk_level == "Critico":
-            st.error(f"Alerta critica: {machine_id} | riesgo {probability:.1%} para las proximas 24 horas.")
+            st.markdown(
+                f"<div class='fleet-alert-banner critical alert-surface-critical alert-critical-card'>"
+                f"<i class='alert-lamp critical'></i><span class='alert-copy'><strong>ALERTA CRÍTICA</strong> · "
+                f"Activo {machine_id} · riesgo {probability:.1%} en el horizonte de 24 h.</span></div>",
+                unsafe_allow_html=True,
+            )
         elif risk_level == "Moderado":
-            st.warning(f"Riesgo moderado: {machine_id} | {probability:.1%}. Se recomienda revisar la tendencia.")
+            st.markdown(
+                f"<div class='fleet-alert-banner moderate alert-surface-moderate'>"
+                f"<i class='alert-lamp moderate'></i><span class='alert-copy'><strong>RIESGO MODERADO</strong> · "
+                f"Activo {machine_id} · {probability:.1%}. Conviene revisar la tendencia.</span></div>",
+                unsafe_allow_html=True,
+            )
         else:
             st.success(f"Monitoreo estable para {machine_id} | riesgo {probability:.1%}.")
         if critical_count or moderate_count:
-            st.warning(
-                f"Estado de flota en esta lectura: {critical_count} critico(s) y "
-                f"{moderate_count} moderado(s). La matriz general refleja este mismo instante."
+            fleet_level = "critical" if critical_count else "moderate"
+            fleet_pulse = "alert-critical-card" if critical_count else ""
+            st.markdown(
+                f"<div class='fleet-alert-banner {fleet_level} alert-surface-{fleet_level} {fleet_pulse}'>"
+                f"<i class='alert-lamp {fleet_level}'></i><span class='alert-copy'>"
+                f"Estado de flota en esta lectura: {critical_count} crítico(s) y {moderate_count} moderado(s). "
+                "La matriz general refleja este mismo instante.</span></div>",
+                unsafe_allow_html=True,
             )
 
         reading_cols = st.columns(5)
         readings = [
-            ("RIESGO | PROXIMAS 24 H", f"{probability * 100:.1f}%", risk_level.upper()),
-            ("ACTIVOS CRITICOS", critical_count, "En esta hora simulada"),
-            ("ACTIVOS MODERADOS", moderate_count, "En esta hora simulada"),
-            ("VIBRACION", f"{selected_row['vibration']:.2f}", "Lectura del sensor"),
-            ("PRESION", f"{selected_row['pressure']:.2f}", "Lectura del sensor"),
+            ("RIESGO | PROXIMAS 24 H", f"{probability * 100:.1f}%", risk_level.upper(), "critical" if risk_level == "Critico" else "moderate" if risk_level == "Moderado" else "stable"),
+            ("ACTIVOS CRITICOS", critical_count, "En esta hora simulada", "critical" if critical_count else "stable"),
+            ("ACTIVOS MODERADOS", moderate_count, "En esta hora simulada", "moderate" if moderate_count else "stable"),
+            ("VIBRACION", f"{selected_row['vibration']:.2f}", "Lectura del sensor", "stable"),
+            ("PRESION", f"{selected_row['pressure']:.2f}", "Lectura del sensor", "stable"),
         ]
-        for column, (label, value, note) in zip(reading_cols, readings):
+        for column, (label, value, note, tone) in zip(reading_cols, readings):
             with column:
+                card_class = "alert-critical-card" if tone == "critical" else "alert-moderate-card" if tone == "moderate" else ""
+                lamp = f"<i class='alert-lamp {tone}'></i>" if tone in {"critical", "moderate"} else ""
                 st.markdown(
-                    f"<div class='simulator-reading'><div class='simulator-reading-label'>{label}</div><div class='simulator-reading-value'>{value}</div><div class='simulator-reading-note'>{note}</div></div>",
+                    f"<div class='simulator-reading {card_class}'><div class='simulator-reading-label'>{lamp}{label}</div><div class='simulator-reading-value'>{value}</div><div class='simulator-reading-note'>{note}</div></div>",
                     unsafe_allow_html=True,
                 )
 
@@ -284,24 +301,29 @@ def render_demo_simulator(
                     "no representan una explicación causal individual."
                 )
                 for _, alert in alert_rows.sort_values("failure_probability", ascending=False).head(10).iterrows():
-                    alert_cols = st.columns([1.1, 0.7, 2.8, 1.1], vertical_alignment="center")
-                    with alert_cols[0]:
-                        st.markdown(f"**{alert['machine_id']} | {alert['risk_level']}**")
-                    with alert_cols[1]:
-                        st.markdown(f"{alert['failure_probability']:.1%}")
-                    with alert_cols[2]:
-                        signals = []
-                        for feature, importance in signal_features:
-                            value = alert.get(feature)
-                            if pd.isna(value):
-                                continue
-                            value_text = f"{float(value):.2f}" if isinstance(value, (int, float)) else str(value)
-                            feature_label = FEATURE_LABELS.get(feature, feature.replace("_", " "))
-                            signals.append(f"{feature_label}: {value_text}")
-                        st.caption(" · ".join(signals) if signals else "Variables no disponibles")
-                    with alert_cols[3]:
-                        if st.button("Ver en matriz", key=f"sim_matrix_{alert['machine_id']}", width="stretch"):
-                            navigate_to_diagnostic_matrix(alert["machine_id"])
+                    alert_tone = "critical" if alert["risk_level"] == "Critico" else "moderate"
+                    with st.container(key=f"sim_alert_{alert_tone}_{alert['machine_id']}"):
+                        alert_cols = st.columns([1.1, 0.7, 2.8, 1.1], vertical_alignment="center")
+                        with alert_cols[0]:
+                            st.markdown(
+                                f"<strong><i class='alert-lamp {alert_tone}'></i>{alert['machine_id']} | {alert['risk_level']}</strong>",
+                                unsafe_allow_html=True,
+                            )
+                        with alert_cols[1]:
+                            st.markdown(f"<strong>{alert['failure_probability']:.1%}</strong>", unsafe_allow_html=True)
+                        with alert_cols[2]:
+                            signals = []
+                            for feature, importance in signal_features:
+                                value = alert.get(feature)
+                                if pd.isna(value):
+                                    continue
+                                value_text = f"{float(value):.2f}" if isinstance(value, (int, float)) else str(value)
+                                feature_label = FEATURE_LABELS.get(feature, feature.replace("_", " "))
+                                signals.append(f"{feature_label}: {value_text}")
+                            st.caption(" · ".join(signals) if signals else "Variables no disponibles")
+                        with alert_cols[3]:
+                            if st.button("Ver en matriz", key=f"sim_matrix_{alert['machine_id']}", width="stretch"):
+                                navigate_to_diagnostic_matrix(alert["machine_id"])
 
         chart_rows = _telemetry_window(live_df, machine_id, current_time).copy()
         chart_rows = chart_rows.rename(columns={"datetime": "timestamp", "volt": "voltage"})

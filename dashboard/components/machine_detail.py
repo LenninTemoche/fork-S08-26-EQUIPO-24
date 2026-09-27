@@ -39,9 +39,20 @@ def render_machine_detail(df_errors, machine_id):
                     f"{row['description']}"
                 )
 
-        if st.button(
-            "Ver activo en matriz diagnostica",
-            key=f"open_matrix_{machine_id}",
-            width="stretch",
-        ):
-            navigate_to_diagnostic_matrix(machine_id)
+        action_cols = st.columns(2)
+        with action_cols[0]:
+            if st.button(
+                "Ver activo en matriz diagnóstica",
+                key=f"open_matrix_{machine_id}",
+                width="stretch",
+            ):
+                navigate_to_diagnostic_matrix(machine_id)
+        with action_cols[1]:
+            if st.button(
+                "Abrir diagnóstico",
+                key=f"open_anomalies_{machine_id}",
+                width="stretch",
+            ):
+                st.session_state.pending_selected_machine = str(machine_id)
+                st.session_state.active_section = "anomalies"
+                st.rerun(scope="app")
