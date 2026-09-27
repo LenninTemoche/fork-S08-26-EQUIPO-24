@@ -196,16 +196,15 @@ source .venv/bin/activate
 
 ### Paso 4: Instalar dependencias
 ```bash
-.venv\Scripts\python.exe -m pip install --upgrade pip
-.venv\Scripts\pip.exe install pandas numpy scikit-learn joblib
-.venv\Scripts\pip.exe install matplotlib seaborn plotly
-.venv\Scripts\pip.exe install streamlit
-.venv\Scripts\pip.exe install jupyter ipykernel pytest
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
+
+Se requiere Python 3.11 o superior. `scikit-learn` queda fijado a la version usada para serializar el modelo.
 
 ### Paso 5: Verificar
 ```bash
-.venv\Scripts\python.exe -c "import pandas, streamlit, sklearn; print('OK')"
+python -c "import pandas, pyarrow, streamlit, sklearn; print('OK')"
 ```
 
 ### Paso 6: Ejecutar
