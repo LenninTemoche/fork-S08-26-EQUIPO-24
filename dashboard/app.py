@@ -59,11 +59,15 @@ st.markdown(
     .pill-red { color:var(--red); background:rgba(255,80,70,.16); } .pill-green { color:var(--green); background:rgba(84,225,140,.12); } .pill-yellow { color:#ffd166; background:rgba(255,209,102,.16); }
     .ai-card { padding:1rem; border:1px solid rgba(126,171,255,.3); border-radius:8px; background:linear-gradient(110deg,rgba(77,142,255,.18),rgba(23,31,51,.8)); }
     .ai-card p { color:var(--muted); font-size:.84rem; margin:.35rem 0 0; }
-    .section-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin:1.25rem 0 .8rem; } .section-head h2 { margin:0; } .section-head p { color:var(--muted); margin:.25rem 0 0; font-size:.8rem; }
-    .stitch-kpi { min-height:6.4rem; padding:1rem; background:var(--surface-2); border:1px solid rgba(126,171,255,.14); border-bottom:2px solid var(--accent); border-radius:8px; }
-    .stitch-kpi-value { margin:.55rem 0 .25rem; color:var(--text); font:700 1.65rem/1.1 'JetBrains Mono',monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .stitch-kpi-detail { color:var(--muted); font:500 .72rem 'JetBrains Mono',monospace; }
-    .risk-legend { display:flex; justify-content:flex-end; gap:1rem; margin:-.35rem 0 .45rem; color:var(--muted); font:500 .68rem 'JetBrains Mono',monospace; }
+    .section-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin:1.25rem 0 .8rem; } .section-head h2 { margin:0; } .section-head p { color:var(--muted); margin:.25rem 0 0; font-size:.8rem; line-height:1.4; }
+    .stitch-kpi { display:flex; flex-direction:column; justify-content:space-between; height:100%; min-height:7.1rem; padding:.9rem 1rem; background:linear-gradient(150deg,rgba(34,42,61,.9),rgba(17,26,45,.92)); border:1px solid rgba(126,171,255,.16); border-bottom:2px solid var(--accent); border-radius:8px; box-sizing:border-box; transition:border-color .18s ease,transform .18s ease; }
+    .stitch-kpi:hover { border-color:var(--accent); transform:translateY(-1px); }
+    .stitch-kpi-label { display:flex; align-items:center; justify-content:space-between; gap:.45rem; min-height:1.8rem; color:var(--muted); font:500 .66rem 'JetBrains Mono',monospace; letter-spacing:.06em; }
+    .stitch-kpi-label > span:first-child { min-width:0; }
+    .stitch-kpi-label .pill { flex:none; float:none!important; }
+    .stitch-kpi-value { display:flex; align-items:center; min-height:2rem; margin:.45rem 0 .35rem; color:var(--text); font:700 1.55rem/1.1 'JetBrains Mono',monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .stitch-kpi-detail { min-height:1rem; color:var(--muted); font:500 .7rem 'JetBrains Mono',monospace; line-height:1.35; }
+    .risk-legend { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:.5rem 1rem; margin:.15rem 0 .6rem; color:var(--muted); font:500 .67rem 'JetBrains Mono',monospace; }
     .risk-legend span { display:inline-flex; align-items:center; gap:.35rem; }
     .risk-legend b { display:inline-block; width:9px; height:9px; border-radius:2px; }
     .telemetry-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1rem; margin:1.1rem 0 .8rem; background:var(--surface-2); border:1px solid rgba(126,171,255,.14); border-radius:8px; }
@@ -91,17 +95,29 @@ st.markdown(
     .banner { gap:.65rem; padding:.7rem 1rem; margin-bottom:.25rem; }
     .banner > div:first-child { min-width:0; flex:1; }
     .banner-title { display:flex; align-items:center; flex-wrap:wrap; gap:.4rem; }
-    .st-key-fleet_ai_panel { padding:.65rem .85rem!important; }
+    .st-key-fleet_ai_panel { padding:.8rem .95rem!important; border-color:rgba(126,171,255,.24)!important; background:linear-gradient(115deg,rgba(23,31,51,.95),rgba(17,26,45,.9))!important; }
     .ai-panel-heading { display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
-    .ai-panel-heading strong { display:block; margin-top:.2rem; color:var(--text); font:600 1rem 'Space Grotesk',sans-serif; }
-    .ai-panel-summary { margin:.2rem 0 0; color:var(--muted); font-size:.78rem; }
-    .ai-diagnostic { margin-top:.45rem; padding-top:.55rem; border-top:1px solid rgba(126,171,255,.2); }
-    .ai-diagnostic-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.55rem; margin-top:.4rem; }
-    .ai-result-card { min-width:0; padding:.6rem .65rem; border:1px solid rgba(126,171,255,.18); border-radius:6px; background:rgba(34,42,61,.55); }
-    .ai-result-title { display:block; margin-top:.3rem; color:var(--text); font:600 .82rem 'Space Grotesk',sans-serif; overflow-wrap:anywhere; }
+    .ai-panel-heading::before { content:"\\2726"; display:grid; place-items:center; width:2.35rem; height:2.35rem; flex:none; border:1px solid rgba(126,171,255,.24); border-radius:7px; background:rgba(77,142,255,.14); color:var(--blue); font-size:1.2rem; }
+    .ai-panel-heading > div:first-child { flex:1; min-width:0; }
+    .ai-panel-heading > div:first-child::before { content:"COPILOTO PREDICTIVO"; display:block; margin-bottom:.12rem; color:var(--muted); font:500 .62rem 'JetBrains Mono',monospace; letter-spacing:.1em; }
+    .ai-panel-heading strong { display:block; color:var(--text); font:600 1rem 'Space Grotesk',sans-serif; }
+    .ai-panel-summary { margin:.45rem 0 0 3.05rem; color:var(--muted); font-size:.76rem; line-height:1.4; }
+    .ai-diagnostic { margin-top:.7rem; padding-top:.65rem; border-top:1px solid rgba(126,171,255,.2); }
+    .ai-diagnostic-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); align-items:stretch; gap:.65rem; margin-top:.5rem; }
+    .ai-result-card { display:flex; flex-direction:column; min-width:0; min-height:8rem; height:100%; padding:.75rem .8rem; border:1px solid rgba(126,171,255,.16); border-left:3px solid var(--card-accent,rgba(126,171,255,.4)); border-radius:7px; background:linear-gradient(180deg,rgba(34,42,61,.66),rgba(34,42,61,.4)); box-sizing:border-box; }
+    .ai-result-card .eyebrow { color:var(--card-accent,var(--muted)); }
+    .ai-result-title { display:block; margin-top:.35rem; color:var(--text); font:600 .82rem 'Space Grotesk',sans-serif; overflow-wrap:anywhere; }
     .ai-result-card p,.ai-result-card li { color:var(--muted); font-size:.74rem; line-height:1.4; overflow-wrap:anywhere; }
     .ai-result-card p { margin:.35rem 0 0; }
-    .ai-result-card ul { margin:.3rem 0 0; padding-left:1rem; }
+    .ai-result-card ul { margin:.3rem 0 0; padding-left:1rem; flex:1; }
+    .ai-analysis-card { padding:.8rem .85rem; border:1px solid rgba(126,171,255,.2); border-left:3px solid var(--tone,var(--blue)); border-radius:7px; background:linear-gradient(150deg,rgba(77,142,255,.13),rgba(34,42,61,.62)); margin:.55rem 0; box-shadow:0 8px 20px rgba(0,0,0,.12); }
+    .ai-analysis-head { display:flex; align-items:center; justify-content:space-between; gap:.4rem; }
+    .ai-analysis-head .eyebrow { color:var(--tone,var(--blue)); }
+    .ai-analysis-verdict { margin:.5rem 0 .25rem; color:var(--text); font:600 .94rem 'Space Grotesk',sans-serif; }
+    .ai-analysis-copy { margin:.2rem 0 .45rem; color:var(--muted); font-size:.72rem; line-height:1.45; }
+    .ai-analysis-card .meta-row { border-top:1px solid rgba(126,171,255,.1); padding:.35rem 0; }
+    .st-key-risk_distribution_panel,.st-key-risk_matrix_panel { padding:.9rem 1rem!important; border-color:rgba(126,171,255,.18)!important; background:linear-gradient(150deg,rgba(23,31,51,.68),rgba(17,26,45,.72))!important; }
+    .st-key-risk_distribution_panel .section-head,.st-key-risk_matrix_panel .section-head { margin:.05rem 0 .7rem; }
     .maintenance-hero { border-left-color:var(--state-color); }
     .maintenance-hero strong { color:var(--state-color); }
     .meta-row { display:flex; justify-content:space-between; gap:.5rem; padding:.25rem 0; color:var(--muted); font:.7rem 'JetBrains Mono',monospace; } .meta-row strong { color:var(--text); text-align:right; font-weight:500; }
@@ -112,6 +128,7 @@ st.markdown(
     @media (max-width:900px) { .ai-diagnostic-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .ai-result-card:last-child { grid-column:1/-1; } }
     @media (max-width:600px) { .ai-diagnostic-grid { grid-template-columns:1fr; } .ai-result-card:last-child { grid-column:auto; } }
     @media (max-width:800px) { [data-testid="stMainBlockContainer"] { padding:.75rem 1rem 1.5rem; } .banner { align-items:flex-start; flex-direction:column; } .risk-legend { justify-content:flex-start; flex-wrap:wrap; } .stitch-kpi-value { font-size:1.35rem; } .telemetry-head { align-items:flex-start; flex-direction:column; } .anomaly-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .resource-grid { grid-template-columns:1fr; } .maintenance-hero { align-items:flex-start; flex-direction:column; } .topbar > div:last-child { display:none; } }
+    @media (max-width:800px) { .ai-panel-summary { margin-left:0; } .st-key-risk_distribution_panel,.st-key-risk_matrix_panel { padding:.7rem!important; } .stitch-kpi { min-height:6.6rem; padding:.75rem; } .stitch-kpi-label { font-size:.61rem; } }
     </style>
     """,
     unsafe_allow_html=True,
@@ -138,7 +155,7 @@ if "active_section" not in st.session_state:
 
 def risk_figure(df_risk):
     chart = df_risk.sort_values("risk_score", ascending=True).copy()
-    colors = {"Cr\u00edtico":"#ff6b68", "Moderado":"#ec6a06", "Estable":"#54e18c"}
+    colors = {"Cr\u00edtico":"#ffb4ab", "Moderado":"#ffb690", "Estable":"#54e18c"}
     fig = go.Figure(go.Bar(
         x=chart["risk_score"], y=chart["machine_id"], orientation="h",
         marker_color=[colors.get(level, "#7eabff") for level in chart["risk_level"]],
@@ -148,18 +165,18 @@ def risk_figure(df_risk):
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(6,14,32,.65)",
         font={"family":"JetBrains Mono", "color":"#dae2fd", "size":11},
-        xaxis={"range":[0,110], "gridcolor":"rgba(140,144,159,.18)", "title":"Índice de riesgo (%)"},
+        xaxis={"range":[0,110], "gridcolor":"rgba(140,144,159,.18)", "title":"\u00cdndice de riesgo (%)"},
         yaxis={"gridcolor":"rgba(0,0,0,0)"}, margin={"l":15,"r":45,"t":15,"b":45},
         height=max(280, len(chart) * 52), showlegend=False,
     )
-    fig.add_vline(x=60, line_dash="dash", line_color="#ffb4ab", annotation_text="Umbral crítico 60%", annotation_font_color="#ffb4ab")
+    fig.add_vline(x=60, line_dash="dash", line_color="#ffb4ab", annotation_text="Umbral cr\u00edtico 60%", annotation_font_color="#ffb4ab")
     return fig
 
 
 def render_stitch_kpi(label, value, detail, tone="blue", badge=""):
     tone_color = {"blue": "#7eabff", "red": "#ffb4ab", "orange": "#ffb690", "green": "#54e18c"}.get(tone, "#7eabff")
-    badge_html = f"<span class='pill' style='color:{tone_color};float:right'>{html.escape(badge)}</span>" if badge else ""
-    return f"<div class='stitch-kpi' style='--accent:{tone_color}'><div class='eyebrow'>{html.escape(label)}{badge_html}</div><div class='stitch-kpi-value'>{html.escape(str(value))}</div><div class='stitch-kpi-detail'>{html.escape(detail)}</div></div>"
+    badge_html = f"<span class='pill' style='color:{tone_color}'>{html.escape(badge)}</span>" if badge else ""
+    return f"<div class='stitch-kpi' style='--accent:{tone_color}'><div class='stitch-kpi-label'><span>{html.escape(label)}</span>{badge_html}</div><div class='stitch-kpi-value'>{html.escape(str(value))}</div><div class='stitch-kpi-detail'>{html.escape(detail)}</div></div>"
 
 
 def risk_tone(level):
@@ -176,7 +193,7 @@ def risk_pill(level):
 
 def render_risk_legend():
     st.markdown(
-        "<div class='risk-legend'><span><b style='background:#ffb4ab'></b>Crítico (&gt;75%)</span><span><b style='background:#ec6a06'></b>Moderado (40-75%)</span><span><b style='background:#54e18c'></b>Estable (&lt;40%)</span></div>",
+        "<div class='risk-legend'><span><b style='background:#ffb4ab'></b>Crítico (60%+)</span><span><b style='background:#ffb690'></b>Moderado (30-59%)</span><span><b style='background:#54e18c'></b>Estable (&lt;30%)</span></div>",
         unsafe_allow_html=True,
     )
 
@@ -244,6 +261,66 @@ def anomaly_heatmap_html(df_risk):
     return "<div class='anomaly-grid'>" + "".join(cards) + "</div>"
 
 
+def render_sidebar_ai_card(df_risk, selected_machine, machine_row):
+    """Tarjeta de análisis IA para el activo seleccionado en el sidebar.
+
+    Solo presentation: reutiliza el ranking ya calculado por
+    `compute_risk_from_model` sin recalcular predicciones.
+    """
+    selected = df_risk[df_risk["machine_id"] == selected_machine].iloc[0]
+    color = risk_color(selected["risk_level"])
+    tone = risk_tone(selected["risk_level"])
+    priority = str(selected["priority"])
+    fleet_top = get_priority_machine(df_risk)
+    fleet_critical = int(df_risk["risk_level"].astype(str).str.startswith("Cr").sum())
+    fleet_rank = int((df_risk["priority_score"] > selected["priority_score"]).sum()) + 1
+    days_since = int(machine_row["days_since_maintenance"])
+
+    verdict = {
+        "Intervenir": "Intervención inmediata",
+        "Inspeccionar": "Inspección programada",
+        "Monitorear": "Monitoreo reforzado",
+        "Ninguna": "Sin acción requerida",
+    }.get(priority, "Revisar según procedimiento")
+
+    is_fleet_top = str(fleet_top["machine_id"]) == str(selected_machine)
+    if is_fleet_top and selected["risk_level"] in {"Crítico", "Moderado"}:
+        lead = "El activo encabeza la cola priorizada de la flota."
+    elif fleet_critical == 0:
+        lead = f"Sin alertas activas en la flota. Posición {fleet_rank} de {len(df_risk)} por score de prioridad."
+    else:
+        lead = f"Posición {fleet_rank} de {len(df_risk)} en la cola de intervención."
+
+    copy = (
+        f"{lead} Riesgo {selected['risk_score']:.1f}% · {fleet_critical} activo(s) "
+        f"críticos en planta · {days_since} días desde el último mantenimiento."
+    )
+
+    # Añadir badge de estado en el título
+    status_badge = {
+        "red": "<span class='pill-red'>⚠️ CRÍTICO</span>",
+        "yellow": "<span class='pill-yellow'>🟠 MODERADO</span>",
+        "green": "<span class='pill-green'>✅ ESTABLE</span>"
+    }.get(tone, "")
+
+    # Indicador de criticidad con badge y mejor formato de filas de análisis
+    analysis_rows = "".join(
+        f"<div class='meta-row'><span>{label}</span><strong>{html.escape(str(value))}</strong></div>"
+        for label, value in [
+            ("Nivel", selected["risk_level"]),
+            ("Puntuación", f"{selected['risk_score']:.1f}%"),
+            ("Criticidad", {"Alta": "🔴 ALTA", "Media": "🟠 MEDIA", "Baja": "🟢 BAJA"}.get(selected["criticality"], selected["criticality"])),
+            ("Acción", priority),
+            ("Horas op.", f"{machine_row['operating_hours']} h"),
+        ]
+    )
+
+    st.markdown(
+        f"<div class='ai-analysis-card' style='--tone:{color}'><div class='ai-analysis-head'><span class='eyebrow'>ANÁLISIS IA · ACTIVO</span>{status_badge}</div><div class='ai-analysis-verdict'>{html.escape(verdict)}</div><p class='ai-analysis-copy'>{html.escape(copy)}</p>{analysis_rows}</div>",
+        unsafe_allow_html=True,
+    )
+
+
 def render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols):
     with st.sidebar:
         st.markdown("<div class='brand'>&#128295; Mantenimiento</div><div class='eyebrow'>S08-26-EQUIPO-24</div><div style='color:var(--blue);font:.7rem JetBrains Mono;margin-top:.4rem'><span class='status-dot'></span>DEMO PREDICTIVA</div>", unsafe_allow_html=True)
@@ -284,6 +361,7 @@ def render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols
         metadata = [("ID", machine_row["machine_id"]), ("Tipo", machine_row["type"]), ("Ubicacion", machine_row["location"]), ("Operacion", f"{machine_row['operating_hours']} h"), ("Ultimo mant.", machine_row["last_maintenance"])]
         rows = "".join(f"<div class='meta-row'><span>{label}</span><strong>{html.escape(str(value))}</strong></div>" for label, value in metadata)
         st.markdown(f"<div class='sidebar-info-card'><div class='eyebrow'>ACTIVO SELECCIONADO</div>{rows}</div>", unsafe_allow_html=True)
+        render_sidebar_ai_card(df_risk, selected_machine, machine_row)
         model_origin = "GitHub" if str(model_source).lower().startswith("github") else "respaldo local"
         st.markdown(f"<div class='sidebar-info-card'><div class='eyebrow'>MODELO PREDICTIVO</div><div class='source-value'>{html.escape(model_origin)}</div><div class='source-note'>{len(feature_cols)} variables · cálculo de riesgo por activo</div></div>", unsafe_allow_html=True)
         if st.button("Actualizar demo", icon=":material/refresh:", width="stretch"):
@@ -316,6 +394,7 @@ fleet_tone = "red" if critical_count else "yellow" if (df_risk["risk_level"] == 
 fleet_state = {"red": "ACCIÓN REQUERIDA", "yellow": "REVISIÓN RECOMENDADA", "green": "OPERACIÓN NORMAL"}[fleet_tone]
 fleet_color = {"red": "#ffb4ab", "yellow": "#ffd166", "green": "#54e18c"}[fleet_tone]
 selected_priority = str(selected_risk["priority"])
+selected_color = risk_color(selected_risk["risk_level"])
 selected_action = {
     "Intervenir": "Programar intervención prioritaria y revisar el equipo antes de continuar la operación.",
     "Inspeccionar": "Programar una inspección técnica y validar los componentes asociados al riesgo.",
@@ -338,11 +417,11 @@ action_items_html = "".join(
 with st.container(border=True, key="fleet_ai_panel"):
     priority_copy = f"Atención prioritaria: {fleet_top['machine_id']} · {fleet_top['risk_level']} · {fleet_top['risk_score']:.1f}%" if fleet_top["risk_level"] in {"Crítico", "Moderado"} else "Sin activos críticos o moderados en la flota."
     st.markdown(
-        f"<div class='ai-panel-heading'><div><div class='eyebrow'>COPILOTO PREDICTIVO</div><strong>Diagnóstico y prioridad de mantenimiento</strong></div><span class='pill' style='color:{fleet_color}'>{fleet_state}</span></div><p class='ai-panel-summary'>{critical_count} activo(s) críticos · {html.escape(priority_copy)}</p>",
+        f"<div class='ai-panel-heading'><div><strong>Diagnóstico y prioridad de mantenimiento</strong></div><span class='pill' style='color:{fleet_color}'>{fleet_state}</span></div><p class='ai-panel-summary'>{critical_count} activo(s) críticos · {html.escape(priority_copy)}</p>",
         unsafe_allow_html=True,
     )
     st.markdown(
-        f"<div class='ai-diagnostic'><div class='eyebrow'>DIAGNÓSTICO ACTUALIZADO</div><div class='ai-diagnostic-grid'><section class='ai-result-card'><div class='eyebrow'>ACTIVO SELECCIONADO</div><strong class='ai-result-title'>{html.escape(str(selected_machine))}</strong><p>{html.escape(str(selected_risk['risk_level']))} · riesgo <strong>{selected_risk['risk_score']:.1f}%</strong></p><p>Prioridad: <strong>{html.escape(selected_priority)}</strong></p></section><section class='ai-result-card'><div class='eyebrow'>PRIORIDAD DE FLOTA</div><strong class='ai-result-title'>{html.escape(str(fleet_top['machine_id']))} · {html.escape(str(fleet_top['risk_level']))}</strong><p>{critical_count} activo(s) críticos</p><p>Riesgo: <strong>{fleet_top['risk_score']:.1f}%</strong> · {html.escape(str(fleet_top['priority']))}</p></section><section class='ai-result-card'><div class='eyebrow'>ACCIONES RECOMENDADAS</div><ul>{action_items_html}</ul></section></div></div>",
+        f"<div class='ai-diagnostic'><div class='eyebrow'>DIAGNÓSTICO ACTUALIZADO</div><div class='ai-diagnostic-grid'><section class='ai-result-card' style='--card-accent:{selected_color}'><div class='eyebrow'>ACTIVO SELECCIONADO</div><strong class='ai-result-title'>{html.escape(str(selected_machine))}</strong><p>{html.escape(str(selected_risk['risk_level']))} · riesgo <strong>{selected_risk['risk_score']:.1f}%</strong></p><p>Prioridad: <strong>{html.escape(selected_priority)}</strong></p></section><section class='ai-result-card' style='--card-accent:{fleet_color}'><div class='eyebrow'>PRIORIDAD DE FLOTA</div><strong class='ai-result-title'>{html.escape(str(fleet_top['machine_id']))} · {html.escape(str(fleet_top['risk_level']))}</strong><p>{critical_count} activo(s) críticos</p><p>Riesgo: <strong>{fleet_top['risk_score']:.1f}%</strong> · {html.escape(str(fleet_top['priority']))}</p></section><section class='ai-result-card' style='--card-accent:var(--blue)'><div class='eyebrow'>ACCIONES RECOMENDADAS</div><ul>{action_items_html}</ul></section></div></div>",
         unsafe_allow_html=True,
     )
 
@@ -368,11 +447,13 @@ if st.session_state.active_section == "overview":
     for column, card in zip(kpi_columns, kpi_cards):
         with column:
             st.markdown(render_stitch_kpi(*card), unsafe_allow_html=True)
-    st.markdown("<div class='section-head'><div><h2>Distribución de riesgo operacional por activo</h2><p>Probabilidad estimada de falla en las próximas 24 horas.</p></div><span class='pill'>FLEET AVG</span></div>", unsafe_allow_html=True)
-    render_risk_legend()
-    st.plotly_chart(risk_figure(overview_risk), width="stretch", config={"displayModeBar": False})
-    st.markdown("<div class='section-head'><div><h2>Matriz diagnóstica de flota</h2><p>Ranking calculado a partir de la última lectura disponible.</p></div></div>", unsafe_allow_html=True)
-    render_risk_table(overview_risk, selected_status, selected_criticality)
+    with st.container(border=True, key="risk_distribution_panel"):
+        st.markdown("<div class='section-head'><div><h2>Distribución de riesgo operacional por activo</h2><p>Probabilidad estimada de falla en las próximas 24 horas.</p></div><span class='pill'>FLEET AVG</span></div>", unsafe_allow_html=True)
+        render_risk_legend()
+        st.plotly_chart(risk_figure(overview_risk), width="stretch", config={"displayModeBar": False})
+    with st.container(border=True, key="risk_matrix_panel"):
+        st.markdown("<div class='section-head'><div><h2>Matriz diagnóstica de flota</h2><p>Ranking calculado a partir de la última lectura disponible.</p></div></div>", unsafe_allow_html=True)
+        render_risk_table(overview_risk, selected_status, selected_criticality)
 
 if st.session_state.active_section == "telemetry":
     tone = risk_pill(selected_risk["risk_level"])
