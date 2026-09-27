@@ -88,14 +88,14 @@ ehthumbs.db
 Icon$
 desktop.ini
 
-# Datasets (large / sensitive)
+# Datasets (large / sensitive) - excepto los segmentados para feature engineering
 data/raw/*.parquet
 data/raw/*.xlsx
 data/raw/*.json
 data/processed/*.csv
-data/processed/*.parquet
 data/processed/*.xlsx
 data/processed/*.json
+data/processed/features_dataset.parquet
 *.db
 *.sqlite
 *.sqlite3
@@ -103,7 +103,7 @@ data/processed/*.json
 
 # Models
 models/*.pkl
-models/*.joblib
+#models/*.joblib
 models/*.h5
 models/*.onnx
 models/*.pt

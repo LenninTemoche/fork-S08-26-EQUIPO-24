@@ -125,6 +125,12 @@ El sistema debe permitir:
 
 ## Estado actual
 
-**FASE:** Discovery / Project Setup
+**FASE:** Modelado + Integración Streamlit (MVP Funcional)
 
-Estas historias están pendientes de refinamiento una vez se seleccione el dataset.
+✅ Modelo Random Forest entrenado (PR-AUC 0.9919, threshold 0.5591)
+✅ Dashboard Streamlit con inferencia real sobre live_demo.parquet
+✅ 46 features alineadas entre modelo y datos
+✅ Tests pasando (7/7)
+✅ Criterios de aceptación cumplidos (identificar riesgo, comprender señales, priorizar intervención)
+
+Ver `docs/model.md` y `docs/demo_script.md` para detalle técnico.

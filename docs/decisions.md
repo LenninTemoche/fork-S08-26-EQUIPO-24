@@ -100,26 +100,26 @@ Registro de decisiones arquitectónicas y de producto.
 ---
 
 ## DEC-010
-**Modelo final seleccionado.**
+**Modelo final seleccionado: Random Forest.**
 
-- **Fecha:** Pendiente
-- **Contexto:** 
-- **Decisión:** 
-- **Consecuencia:** 
+- **Fecha:** 2026-09-22
+- **Contexto:** Se entrenaron y evaluaron Logistic Regression (baseline) y Random Forest sobre 4 estrategias de split temporales.
+- **Decisión:** Seleccionar Random Forest (`n_estimators=100`, `max_depth=10`, `min_samples_leaf=20`, `class_weight='balanced'`, `random_state=42`) como modelo final.
+- **Evidencia:** PR-AUC=0.9919, ROC-AUC=0.9999 (4 estrategias de split confirman PR-AUC > 0.99 sin data leakage). Threshold óptimo=0.5591 (precision=0.8001, recall=1.0).
+- **Consecuencia:** Modelo serializado en `models/baseline_model.joblib` (2.50 MB) y servido vía `dashboard/utils/model_loader.py` con inferencia batch sobre `live_demo.parquet`.
 
 ---
 
 ## DEC-011
-**Estrategia de deploy final.**
+**Estrategia de deploy final: Streamlit Community Cloud.**
 
-- **Fecha:** Pendiente
-- **Contexto:** 
-- **Decisión:** 
-- **Consecuencia:** 
+- **Fecha:** 2026-09-23
+- **Contexto:** MVP funcional, modelo y datos publicados en GitHub.
+- **Decisión:** Deploy inicial en Streamlit Community Cloud. El dashboard consume el modelo y datos directamente desde GitHub (rama `feat/modeling_integration`) con fallback local.
+- **Consecuencia:** No se requiere infraestructura adicional para el MVP. Validar límites de ancho de banda y rendimiento en producción.
 
 ---
 
 ## Próximas decisiones
 
-- DEC-010: Modelo final seleccionado.
-- DEC-011: Estrategia de deploy final.
+- DEC-012: SHAP explainability (feature importance ya documentada, SHAP opcional).

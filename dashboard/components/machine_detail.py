@@ -11,6 +11,10 @@ def render_machine_detail(df_errors, machine_id):
         df_errors: DataFrame con columnas machine_id, timestamp, error_code, description.
         machine_id: ID de la máquina seleccionada.
     """
+    # Asegurar consistencia en el nombre de la columna
+    if 'machineID' in df_errors.columns:
+        df_errors = df_errors.rename(columns={'machineID': 'machine_id'})
+
     df_machine_errors = df_errors[df_errors['machine_id'] == machine_id].copy()
 
     if df_machine_errors.empty:

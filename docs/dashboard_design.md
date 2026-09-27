@@ -2,7 +2,7 @@
 
 **Responsable:** DS/DA (Data Analyst — Dashboard / UX)
 **Framework:** Streamlit (componentes nativos + Plotly + HTML/CSS personalizado)
-**Estado:** MVP Implementado (Premium Dark Theme)
+**Estado:** MVP Implementado (Premium Dark Theme, Integración ML Funcional)
 
 ---
 
@@ -10,9 +10,10 @@
 
 El dashboard se compone de:
 
-- `dashboard/app.py` — Entry point principal
-- `dashboard/components/` — Componentes modulares
-- `dashboard/utils/data_loader.py` — Datos de ejemplo (mock)
+- `dashboard/app.py` — Entry point principal, orquestación y UI
+- `dashboard/components/` — Componentes modulares de visualización
+- `dashboard/utils/data_loader.py` — Carga de datos reales (`live_demo.parquet`) desde GitHub/local
+- `dashboard/utils/model_loader.py` — Carga del artefacto ML (`baseline_model.joblib`) desde GitHub/local
 
 Los componentes son:
 
@@ -29,8 +30,12 @@ Los componentes son:
 
 | Elemento           | Streamlit                     | Datos                                      |
 | ------------------ | ----------------------------- | ------------------------------------------ |
-| Logo + código     | `st.title` + `st.caption` | S08-26-EQUIPO-24                           |
-| Selector máquina  | `st.selectbox`              | `machine_id` (CNC-001, MILL-004, etc.)   |
+| Logo + código     | `st.markdown` + `st.caption` | S08-26-EQUIPO-24                           |
+| Origen de datos   | `st.radio`                    | GitHub / Local (selector de fuente)        |
+| Recargar          | `st.button`                   | Limpia caches (`cache_data`, `cache_resource`) y rerunea |
+| Fuente de datos   | `st.markdown`                 | GitHub (feat/modeling_integration) / Local |
+| **Metadatos ML**  | `st.markdown` (HTML card)    | Fuente, PR-AUC, Threshold, Features, fechas train/test |
+| Selector máquina  | `st.selectbox`              | `machine_id` (100 máquinas)   |
 | Filtro estado      | `st.multiselect`            | Crítico, Moderado, Estable                |
 | Filtro criticidad  | `st.multiselect`            | Alta, Media, Baja                          |
 | Metadatos rápidos | `st.write`                  | ID, Tipo, Ubicación, Horas, Mantenimiento |
@@ -127,16 +132,25 @@ Elementos:
 
 ---
 
-## 6. Mock data placeholder
+## 6. Datos de Entrada (Reemplaza Mock Data)
 
-El archivo `utils/data_loader.py` contiene datos de ejemplo:
+El archivo `utils/data_loader.py` carga datos reales desde `live_demo.parquet`:
 
-- 6 máquinas (CNC, Torno, Fresadora, Bomba, Transportador)
-- Riesgo calculado (score 0-100)
-- Telemetría 30 días (temperatura, vibración, presión)
-- Histórico de errores (5 registros)
+- **100 máquinas** con telemetría horaria (87,700 filas).
+- **46 features** alineadas con el modelo (ver `docs/model.md` para la lista completa).
+- **Target histórico:** `failure_next_24h` (1.96% positivos).
+- **Origen:** GitHub (rama `feat/modeling_integration`) con fallback a local.
+- **Cache:** `@st.cache_data(ttl=3600)` en el loader.
 
-Cuando el modelo ML esté listo: reemplazar esta lógica por lectura real de `data/processed/` y predicciones del modelo.
+La inferencia se ejecuta sobre `live_df` mediante `compute_risk_from_model()`, que:
+
+1. Carga el modelo desde GitHub/local (`model_loader.py`).
+2. Calcula probabilidades con `model.predict_proba()`.
+3. Aplica el umbral óptimo (`0.5591`) calibrado a la prevalencia real (~1.96%).
+4. Asigna `risk_score` (0–100), `risk_level` (Crítico/Moderado/Estable), `criticality` y `priority`.
+5. Genera `df_telemetry` y `df_errors` para los componentes visuales.
+
+La función `load_mock_data()` se mantiene como placeholder con `DeprecationWarning` para compatibilidad.
 
 ---
 
@@ -165,5 +179,6 @@ dashboard/
 │   └── priority_list.py
 └── utils/
     ├── __init__.py
-    └── data_loader.py
+    ├── data_loader.py      ← carga live_demo.parquet (GitHub/local)
+    └── model_loader.py     ← carga baseline_model.joblib (GitHub/local)
 ```

@@ -11,6 +11,14 @@ def render_priority_list(df_risk, df_machines):
         df_risk: DataFrame con columnas machine_id, risk_score, risk_level, criticality, priority_score, priority.
         df_machines: DataFrame con información de las máquinas.
     """
+    # Asegurar consistencia en el nombre de la columna para df_risk
+    if 'machineID' in df_risk.columns:
+        df_risk = df_risk.rename(columns={'machineID': 'machine_id'})
+
+    # Asegurar consistencia en el nombre de la columna para df_machines
+    if 'machineID' in df_machines.columns:
+        df_machines = df_machines.rename(columns={'machineID': 'machine_id'})
+
     # Combinar riesgo con información de la máquina
     df_merged = df_risk.merge(df_machines[['machine_id', 'type', 'location']], on='machine_id')
     df_merged = df_merged.sort_values('priority_score', ascending=False)

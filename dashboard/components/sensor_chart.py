@@ -11,6 +11,10 @@ def render_sensor_chart(df_telemetry, machine_id):
         df_telemetry: DataFrame con columnas machine_id, timestamp, temperature, vibration, pressure.
         machine_id: ID de la máquina seleccionada.
     """
+    # Asegurar consistencia en el nombre de la columna
+    if 'machineID' in df_telemetry.columns:
+        df_telemetry = df_telemetry.rename(columns={'machineID': 'machine_id'})
+
     df_machine = df_telemetry[df_telemetry['machine_id'] == machine_id].copy()
 
     if df_machine.empty:

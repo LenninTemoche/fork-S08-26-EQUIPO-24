@@ -12,6 +12,10 @@ def render_risk_table(df_risk, selected_status, selected_criticality):
         selected_status: Lista de niveles de riesgo filtrados.
         selected_criticality: Lista de criticidad filtrada.
     """
+    # Asegurar consistencia en el nombre de la columna
+    if 'machineID' in df_risk.columns:
+        df_risk = df_risk.rename(columns={'machineID': 'machine_id'})
+
     # Filtrar por estado y criticidad
     df_filtered = df_risk[
         df_risk['risk_level'].isin(selected_status) &

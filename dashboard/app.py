@@ -6,7 +6,8 @@ from components.risk_table import render_risk_table
 from components.sensor_chart import render_sensor_chart
 from components.machine_detail import render_machine_detail
 from components.priority_list import render_priority_list
-from utils.data_loader import load_mock_data
+from utils.data_loader import load_live_demo_data, compute_risk_from_model
+from utils.model_loader import get_model
 
 st.set_page_config(
     page_title='PredictiveMaintenance',
@@ -14,6 +15,35 @@ st.set_page_config(
     layout='wide',
     initial_sidebar_state='expanded'
 )
+
+
+def safe_rerun():
+    """Intenta reiniciar el script de Streamlit de forma compatible.
+
+    Algunas versiones de Streamlit no exponen `st.experimental_rerun`.
+    Esta función intenta usarlo y, si no existe, intenta lanzar la
+    excepción interna de rerun; si todo falla, muestra una advertencia
+    para que el usuario recargue manualmente la página.
+    """
+    if hasattr(st, "experimental_rerun"):
+        try:
+            st.experimental_rerun()
+            return
+        except Exception:
+            pass
+
+    # Intentar lanzar la excepción interna de rerun (varía según versión)
+    try:
+        from streamlit.runtime.scriptrunner.script_runner import RerunException
+        raise RerunException()
+    except Exception:
+        try:
+            # Fallback a ubicaciones antiguas
+            from streamlit.scriptrunner import RerunException
+            raise RerunException()
+        except Exception:
+            st.warning('No es posible reiniciar programáticamente en esta versión de Streamlit. Por favor, refresca la página manualmente.')
+            return
 
 # ── Estilos CSS personalizados (tema oscuro premium) ──
 st.markdown("""
@@ -89,27 +119,70 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Carga de datos de ejemplo (placeholder) ──
-df_machines, df_risk, df_telemetry, df_errors = load_mock_data()
-
-# ═══════════════════════════════════════════════
-# BARRA LATERAL
-# ═══════════════════════════════════════════════
+# ── Selector de origen y control de recarga (sidebar inicial)
 with st.sidebar:
     st.markdown("""
     <div style='text-align:center; padding: 8px 0 4px 0;'>
         <div style='font-size: 2rem;'>🔧</div>
         <div style='font-size: 1.1rem; font-weight: 700; color: #60a5fa; letter-spacing: -0.3px;'>PredictiveMaintenance</div>
         <div style='font-size: 0.7rem; color: #64748b; margin-top: 2px;'>S08-26-EQUIPO-24</div>
-        <div style='margin-top: 8px; display: inline-block; background: rgba(34,197,94,0.15); border: 1px solid #22c55e; border-radius: 20px; padding: 2px 10px; font-size: 0.7rem; color: #22c55e;'>● EN VIVO</div>
     </div>
     """, unsafe_allow_html=True)
     st.divider()
 
+    source_choice = st.radio('Origen de datos', options=['GitHub', 'Local'], index=0)
+    prefer_local = source_choice == 'Local'
+
+    st.caption('Elija `Local` para forzar uso de archivos en disco (desarrollo).')
+
+    if st.button('🔄 Recargar modelo y datos', key='reload_choice'):
+        try:
+            st.cache_data.clear()
+        except Exception:
+            pass
+        try:
+            st.cache_resource.clear()
+        except Exception:
+            pass
+        safe_rerun()
+
+# Cargar datos y modelo (usando la preferencia seleccionada)
+try:
+    with st.spinner('Cargando datos y modelo...'):
+        live_df, data_source = load_live_demo_data(prefer_local=prefer_local)
+        df_machines, df_risk, df_telemetry, df_errors = compute_risk_from_model(live_df, prefer_local_model=prefer_local)
+        model, feature_cols, meta, model_source = get_model(prefer_local=prefer_local)
+except Exception as e:
+    st.error(f"Error al cargar datos o modelo: {e}")
+    st.stop()
+
+# ═══════════════════════════════════════════════
+# BARRA LATERAL
+# ═══════════════════════════════════════════════
+with st.sidebar:
+    st.markdown(f"**Fuente de datos:** {data_source}")
+    st.divider()
+
+    # Info del modelo
+    pr_auc = meta.get("pr_auc")
+    pr_auc_text = f"{pr_auc:.4f}" if pr_auc is not None else "N/D"
+    threshold_text = f"{meta['decision_threshold']:.3f}"
+    st.markdown(f"""
+    <div style='padding: 12px; border-radius: 8px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); margin-bottom: 16px;'>
+        <div style='font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em;'>Modelo ML</div>
+        <div style='font-weight: 600; color: #60a5fa; margin-top: 4px;'>Fuente: {model_source}</div>
+        <div style='color: #94a3b8; font-size: 0.85rem; margin-top: 4px;'>PR-AUC: {pr_auc_text}</div>
+        <div style='color: #94a3b8; font-size: 0.85rem; margin-top: 2px;'>Threshold: {threshold_text}</div>
+        <div style='color: #94a3b8; font-size: 0.85rem; margin-top: 2px;'>Features: {len(feature_cols)}</div>
+        <div style='color: #94a3b8; font-size: 0.85rem; margin-top: 2px;'>Entrenamiento: {meta.get("train_start", "?")} → {meta.get("train_end", "?")}</div>
+        <div style='color: #94a3b8; font-size: 0.85rem; margin-top: 2px;'>Test: {meta.get("test_start", "?")} → {meta.get("test_end", "?")}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
     # Selector de máquina
     machine_ids = df_machines['machine_id'].tolist()
     selected_machine = st.selectbox(
-        ' Máquina',
+        'Máquina',
         options=machine_ids,
         index=0
     )
@@ -117,7 +190,7 @@ with st.sidebar:
     # Filtro de estado
     status_options = ['Crítico', 'Moderado', 'Estable']
     selected_status = st.multiselect(
-        ' Filtro de estado',
+        'Filtro de estado',
         options=status_options,
         default=['Crítico', 'Moderado', 'Estable']
     )
@@ -125,7 +198,7 @@ with st.sidebar:
     # Filtro de criticidad
     criticality_options = ['Alta', 'Media', 'Baja']
     selected_criticality = st.multiselect(
-        ' Filtro de criticidad',
+        'Filtro de criticidad',
         options=criticality_options,
         default=criticality_options
     )
@@ -134,13 +207,25 @@ with st.sidebar:
 
     # Metadatos rápidos de la máquina seleccionada
     machine_row = df_machines[df_machines['machine_id'] == selected_machine].iloc[0]
-    st.subheader(' Metadatos')
+    st.subheader('Metadatos')
     st.write(f'**ID:** {machine_row["machine_id"]}')
     st.write(f'**Tipo:** {machine_row["type"]}')
     st.write(f'**Ubicación:** {machine_row["location"]}')
     st.write(f'**Horas operación:** {machine_row["operating_hours"]} h')
     st.write(f'**Último mantenimiento:** {machine_row["last_maintenance"]}')
     st.write(f'**Días sin mantenimiento:** {machine_row["days_since_maintenance"]}')
+
+    # Botón para forzar recarga de datos y modelo
+    if st.button('🔄 Recargar modelo y datos', key='reload_sidebar'):
+        try:
+            st.cache_data.clear()
+        except Exception:
+            pass
+        try:
+            st.cache_resource.clear()
+        except Exception:
+            pass
+        safe_rerun()
 
 # ═══════════════════════════════════════════════
 # CONTENEDOR PRINCIPAL
@@ -178,10 +263,11 @@ with kpi2:
     )
 
 with kpi3:
-    next_maint = df_machines['next_maintenance'].min()
+    # Convert next_maintenance timestamp to string for display
+    next_maint_date = df_machines['next_maintenance'].min().strftime('%Y-%m-%d') if not df_machines['next_maintenance'].isna().all() else 'N/A'
     st.metric(
         label='📅 Próximo Mantenimiento',
-        value=next_maint,
+        value=next_maint_date,
         delta='más próximo programado'
     )
 
@@ -262,9 +348,9 @@ with tab1:
         height=280,
         showlegend=False,
     )
-    # Línea de umbral crítico
-    fig.add_vline(x=75, line_dash='dash', line_color='#ff4b4b',
-                  annotation_text='Umbral crítico (75%)',
+    # La categoría Crítico empieza en 60% según get_level_and_criticality.
+    fig.add_vline(x=60, line_dash='dash', line_color='#ff4b4b',
+                  annotation_text='Umbral crítico (60%)',
                   annotation_font_color='#ff4b4b',
                   annotation_position='top right')
     st.plotly_chart(fig, use_container_width=True)
@@ -290,8 +376,9 @@ with tab2:
     # Métricas dinámicas basadas en la máquina seleccionada
     df_sel = df_telemetry[df_telemetry['machine_id'] == selected_machine]
     if not df_sel.empty:
-        latest = df_sel.sort_values('timestamp').iloc[-1]
-        first  = df_sel.sort_values('timestamp').iloc[0]
+        df_sel_sorted = df_sel.sort_values('timestamp')
+        first = df_sel_sorted.iloc[0]
+        latest = df_sel_sorted.iloc[-1]
 
         temp_delta  = latest['temperature'] - first['temperature']
         vib_delta   = latest['vibration']   - first['vibration']
@@ -346,7 +433,10 @@ with tab3:
             with c2:
                 st.markdown(f"**{row['machine_id']}** — {row['type']}")
                 st.caption(f"📍 {row['location']} · {row['days_since_maintenance']}d sin mantenimiento")
-                st.progress(int(row['risk_score']), text=f"Riesgo: {row['risk_score']}%")
+                # `st.progress` espera un valor entre 0 y 1
+                prog = float(row['risk_score']) / 100.0
+                prog = max(0.0, min(1.0, prog))
+                st.progress(prog)
             with c3:
                 st.markdown(f"<span style='color:{level_color}; font-weight:600;'>● {row['risk_level']}</span> · Criticidad {row['criticality']}", unsafe_allow_html=True)
             with c4:

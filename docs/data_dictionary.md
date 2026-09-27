@@ -84,6 +84,80 @@ Documentación de variables del **dataset seleccionado: Microsoft Azure Predicti
 
 ---
 
+## Variables derivadas implementadas (usadas por el modelo final — 46 features)
+
+Las siguientes 46 features se generaron en `notebooks/05_modeling.ipynb` y se usan para entrenar e inferir con el Random Forest final (`models/baseline_model.joblib`).
+
+### Sensores base (observados)
+| Variable | Tipo | Origen | Descripción |
+|---|---|---|---|
+| volt | float | Telemetría | Tensión eléctrica (V) |
+| rotate | float | Telemetría | Velocidad de rotación (RPM) |
+| pressure | float | Telemetría | Presión de trabajo (psi) |
+| vibration | float | Telemetría | Nivel de vibración (mm/s²) |
+
+### Características de máquina (observadas)
+| Variable | Tipo | Origen | Descripción |
+|---|---|---|---|
+| age | int | df_machines | Antigüedad de la máquina (años) |
+
+### Historial de errores (derivadas)
+| Variable | Tipo | Fórmula / Regla | Descripción |
+|---|---|---|---|
+| errors_last_24h | int | Conteo errores en (t-24h, t] | Volumen de errores recientes |
+| errors_last_7d | int | Conteo errores en (t-7d, t] | Volumen de errores semanales |
+| distinct_errors_last_24h | int | Errores únicos en (t-24h, t] | Diversidad de fallos recientes |
+| time_since_last_error_h | float | Horas desde último error | Recencia de fallos (crítico) |
+| has_error_recent | bool | 1 si errors_last_24h > 0 | Flag de error reciente |
+
+### Historial de mantenimiento (derivadas)
+| Variable | Tipo | Fórmula / Regla | Descripción |
+|---|---|---|---|
+| hours_since_maintenance | float | Horas desde último mantenimiento | Degradación por falta de mant. |
+| days_since_maintenance | float | Días desde último mantenimiento | Versión en días |
+| maintenance_count_30d | int | Mantenimientos en (t-30d, t] | Frecuencia de mantenimiento |
+| time_since_last_component_replacement_h | float | Horas desde último reemplazo | Vida útil componente actual |
+| has_recent_maintenance | bool | 1 si maintenance_count_30d > 0 | Flag de mantenimiento reciente |
+
+### Modelo de máquina (one-hot encoding)
+| Variable | Tipo | Descripción |
+|---|---|---|
+| model_model2 | int (0/1) | Modelo tipo 2 |
+| model_model3 | int (0/1) | Modelo tipo 3 |
+| model_model4 | int (0/1) | Modelo tipo 4 |
+*(model_model1 es la referencia)*
+
+### Rolling windows (rolling mean/std) — 3h, 6h, 24h
+| Sensor | Ventana | Features (media, std) |
+|---|---|---|
+| volt | 3h | `volt_roll_mean_3h`, `volt_roll_std_3h` |
+| rotate | 3h | `rotate_roll_mean_3h`, `rotate_roll_std_3h` |
+| pressure | 3h | `pressure_roll_mean_3h`, `pressure_roll_std_3h` |
+| vibration | 3h | `vibration_roll_mean_3h`, `vibration_roll_std_3h` |
+| volt | 6h | `volt_roll_mean_6h`, `volt_roll_std_6h` |
+| rotate | 6h | `rotate_roll_mean_6h`, `rotate_roll_std_6h` |
+| pressure | 6h | `pressure_roll_mean_6h`, `pressure_roll_std_6h` |
+| vibration | 6h | `vibration_roll_mean_6h`, `vibration_roll_std_6h` |
+| volt | 24h | `volt_roll_mean_24h`, `volt_roll_std_24h` |
+| rotate | 24h | `rotate_roll_mean_24h`, `rotate_roll_std_24h` |
+| pressure | 24h | `pressure_roll_mean_24h`, `pressure_roll_std_24h` |
+| vibration | 24h | `vibration_roll_mean_24h`, `vibration_roll_std_24h` |
+
+### Deltas (cambio instantáneo)
+| Variable | Tipo | Fórmula | Descripción |
+|---|---|---|---|
+| volt_delta | float | `volt.diff()` | Cambio de voltaje vs hora anterior |
+| rotate_delta | float | `rotate.diff()` | Cambio de rotación |
+| pressure_delta | float | `pressure.diff()` | Cambio de presión |
+| vibration_delta | float | `vibration.diff()` | Cambio de vibración |
+
+### Target
+| Variable | Tipo | Fórmula | Descripción |
+|---|---|---|---|
+| failure_next_24h | int (0/1) | 1 si falla en (t, t+24h] | Variable objetivo (target) |
+
+---
+
 ## Convenciones
 
 - **Observada:** dato registrado directamente por sensores o sistemas.
@@ -97,4 +171,5 @@ Documentación de variables del **dataset seleccionado: Microsoft Azure Predicti
 **Dataset principal: Azure PdM** — Diccionario completado para 5 tablas raw.
 **Validación secundaria: AI4I 2020** — Diccionario documentado para benchmark.
 
-Próximo: Generar `data/processed/` con dataset unificado y variables derivadas.
+✅ **Dataset procesado generado:** `data/processed/live_demo.parquet` (87,700 filas, 100 máquinas, 46 features + target).
+✅ **Feature set final:** 46 features documentadas arriba, alineadas con `models/baseline_model.joblib`.

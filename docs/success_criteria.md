@@ -41,31 +41,32 @@ El producto solo podrá considerarse exitoso si:
 ## Criterios de aceptación por capa
 
 ### Capa de datos
-- [ ] Dataset seleccionado y justificado
-- [ ] Diccionario de datos disponible
-- [ ] Limpieza aplicada (nulos, inconsistencias, duplicados)
-- [ ] Variables relevantes identificadas
-- [ ] Separación train/validation/test definida
+- [x] Dataset seleccionado y justificado (Azure PdM)
+- [x] Diccionario de datos disponible (`docs/data_dictionary.md`)
+- [x] Limpieza aplicada (nulos, inconsistencias, duplicados)
+- [x] Variables relevantes identificadas (46 features)
+- [x] Separación train/validation/test definida (75% / 15% / 10%, gap 24h)
 
 ### Capa de modelo
-- [ ] Baseline definido
-- [ ] Modelo(s) candidato(s) evaluado(s)
-- [ ] Score de riesgo interpretable
-- [ ] Validación realizada
-- [ ] Explicabilidad incluida
+- [x] Baseline definido (Logistic Regression, PR-AUC 0.8843)
+- [x] Modelo(s) candidato(s) evaluado(s)
+- [x] Score de riesgo interpretable (probabilidad de falla 0–100)
+- [x] Validación realizada (4 estrategias de split, PR-AUC > 0.99)
+- [x] Explicabilidad incluida (feature importance, top 15)
 
 ### Capa de dashboard
-- [ ] Resumen general
-- [ ] Estado de máquinas
-- [ ] Ranking de riesgo
-- [ ] Prioridad
-- [ ] Detalle de máquina
-- [ ] Explicación del riesgo
+- [x] Resumen general (KPIs + bar chart de riesgo)
+- [x] Estado de máquinas (tabla de riesgo con filtros)
+- [x] Ranking de riesgo
+- [x] Prioridad (cola de intervención ordenada)
+- [x] Detalle de máquina (histórico de errores + telemetría)
+- [x] Explicación del riesgo (feature importance en docs/model.md)
 
 ---
 
 ## Estado actual
 
-**FASE:** Discovery / Project Setup
+**FASE:** Modelado + Integración Streamlit (Semana 3-4)
 
-**Estado:** Documentación de criterios definida. El modelo, dataset y dashboard aún no existen.
+**Estado:** ✅ Modelo entrenado y serializado. ✅ Dashboard con integración ML funcional. ✅ Tests pasando (7/7).
+Ver `docs/model.md` para detalle del modelo y `docs/demo_script.md` para el estado de la integración.
