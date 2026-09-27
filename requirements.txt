@@ -1,9 +1,11 @@
 # Core data stack
 pandas>=2.0.0
 numpy>=1.24.0
+pyarrow>=14.0.0
 
 # Machine learning
-scikit-learn>=1.3.0
+# Keep aligned with the serialized Random Forest in models/baseline_model.joblib.
+scikit-learn==1.9.1
 joblib>=1.3.0
 
 # Visualization
@@ -12,7 +14,7 @@ seaborn>=0.12.0
 plotly>=5.18.0
 
 # Dashboard
-streamlit>=1.30.0
+streamlit>=1.37.0
 
 # Development / testing
 jupyter>=1.0.0
