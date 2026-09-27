@@ -6,7 +6,7 @@ Propósito
 - Aplicación Streamlit para visualización de riesgos y telemetría basada en el artefacto `models/baseline_model.joblib` y el dataset `data/processed/live_demo.parquet`.
 
 Requisitos
-- Python 3.8+
+- Python 3.11+
 - Virtualenv / venv recomendado
 - Dependencias listadas en `requirements.txt` (instalar con `pip install -r requirements.txt`).
 
