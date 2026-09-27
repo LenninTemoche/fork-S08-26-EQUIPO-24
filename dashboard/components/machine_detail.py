@@ -1,31 +1,47 @@
-"""Componente: Detalle de máquina y histórico de errores."""
+"""Detalle de una maquina y enlace al diagnostico de flota."""
 
 import pandas as pd
 import streamlit as st
 
 
+def navigate_to_section(machine_id, section_id):
+    """Open a dashboard section with the requested asset selected."""
+    st.session_state.active_section = section_id
+    st.session_state.pending_selected_machine = str(machine_id)
+    st.rerun(scope="app")
+
+
+def navigate_to_diagnostic_matrix(machine_id):
+    """Open Vista General from an error card."""
+    navigate_to_section(machine_id, "overview")
+
+
 def render_machine_detail(df_errors, machine_id):
-    """Muestra el histórico de errores de una máquina en un expander.
+    """Show the selected machine events and offer a shortcut to its matrix row."""
+    if "machineID" in df_errors.columns and "machine_id" not in df_errors.columns:
+        df_errors = df_errors.rename(columns={"machineID": "machine_id"})
 
-    Args:
-        df_errors: DataFrame con columnas machine_id, timestamp, error_code, description.
-        machine_id: ID de la máquina seleccionada.
-    """
-    # Asegurar consistencia en el nombre de la columna
-    if 'machineID' in df_errors.columns:
-        df_errors = df_errors.rename(columns={'machineID': 'machine_id'})
+    if "machine_id" in df_errors.columns:
+        df_errors = df_errors[df_errors["machine_id"].astype(str) == str(machine_id)].copy()
+    else:
+        df_errors = pd.DataFrame(columns=["machine_id", "timestamp", "error_code", "description"])
 
-    df_machine_errors = df_errors[df_errors['machine_id'] == machine_id].copy()
+    if not df_errors.empty:
+        df_errors = df_errors.sort_values("timestamp", ascending=False)
 
-    if df_machine_errors.empty:
-        st.success(f'Sin errores registrados para {machine_id}.')
-        return
+    with st.expander(f"Eventos y errores ({len(df_errors)} registros)", expanded=True):
+        if df_errors.empty:
+            st.success(f"Sin errores registrados para {machine_id}.")
+        else:
+            for _, row in df_errors.iterrows():
+                st.error(
+                    f"**{row['timestamp']} | {row['error_code']}**\n\n"
+                    f"{row['description']}"
+                )
 
-    df_machine_errors = df_machine_errors.sort_values('timestamp', ascending=False)
-
-    with st.expander(f' Ver histórico ({len(df_machine_errors)} registros)', expanded=True):
-        for _, row in df_machine_errors.iterrows():
-            st.error(
-                f'**{row["timestamp"]}** — {row["error_code"]}\n\n'
-                f'{row["description"]}'
-            )
+        if st.button(
+            "Ver activo en matriz diagnostica",
+            key=f"open_matrix_{machine_id}",
+            width="stretch",
+        ):
+            navigate_to_diagnostic_matrix(machine_id)

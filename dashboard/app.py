@@ -1,13 +1,14 @@
 import html
 
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 from components.machine_detail import render_machine_detail
 from components.sensor_chart import render_sensor_chart
 from components.risk_table import render_risk_table
-from components.demo_simulator import render_demo_simulator, simulation_snapshot
+from components.demo_simulator import PERIOD_HOURS, render_demo_simulator, simulation_snapshot
 from utils.data_loader import compute_risk_from_model, get_priority_machine, load_live_demo_data
 from utils.model_loader import get_model
 
@@ -118,6 +119,7 @@ st.markdown(
     .ai-analysis-copy { margin:.2rem 0 .45rem; color:var(--muted); font-size:.72rem; line-height:1.45; }
     .ai-analysis-card .meta-row { border-top:1px solid rgba(126,171,255,.1); padding:.35rem 0; }
     .st-key-risk_distribution_panel,.st-key-risk_matrix_panel { padding:.9rem 1rem!important; border-color:rgba(126,171,255,.18)!important; background:linear-gradient(150deg,rgba(23,31,51,.68),rgba(17,26,45,.72))!important; }
+    .st-key-live_telemetry_panel,.st-key-demo_telemetry_section { padding:.9rem 1rem!important; border-color:rgba(126,171,255,.18)!important; background:linear-gradient(150deg,rgba(23,31,51,.68),rgba(17,26,45,.72))!important; }
     .st-key-risk_distribution_panel .section-head,.st-key-risk_matrix_panel .section-head { margin:.05rem 0 .7rem; }
     .maintenance-hero { border-left-color:var(--state-color); }
     .maintenance-hero strong { color:var(--state-color); }
@@ -225,6 +227,23 @@ def telemetry_figure(df_selected):
         yaxis3={"overlaying":"y", "side":"right", "position":.96, "showgrid":False, "showticklabels":False},
     )
     return figure
+
+
+def render_replayed_telemetry(chart_placeholder, chart_rows, period):
+    """Replace the live plot with the simulator window in the same chart slot."""
+    chart_placeholder.empty()
+    with chart_placeholder.container():
+        st.markdown(
+            f"<div class='chart-label'><span>TELEMETRÍA REPRODUCIDA</span>"
+            f"<span class='eyebrow'>VENTANA {html.escape(str(period))}</span></div>",
+            unsafe_allow_html=True,
+        )
+        st.plotly_chart(
+            telemetry_figure(chart_rows),
+            width="stretch",
+            config={"displayModeBar": False},
+            key="telemetry_main_chart",
+        )
 
 
 def fft_figure(df_selected):
@@ -342,6 +361,13 @@ def render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols
         with st.container(key="sidebar_filters"):
             st.markdown("<div class='eyebrow sidebar-heading'>FILTROS DE FLOTA</div>", unsafe_allow_html=True)
             machine_ids = df_machines["machine_id"].tolist()
+            pending_machine = st.session_state.pop("pending_selected_machine", None)
+            matching_machine = next(
+                (machine_id for machine_id in machine_ids if str(machine_id) == str(pending_machine)),
+                None,
+            )
+            if matching_machine is not None:
+                st.session_state.selected_machine_filter = matching_machine
             default_machine = get_priority_machine(df_risk)["machine_id"]
             if st.session_state.get("selected_machine_filter") not in machine_ids:
                 st.session_state.selected_machine_filter = default_machine
@@ -437,40 +463,95 @@ for nav_column, (section_id, label) in zip(nav_columns, SECTION_OPTIONS):
 
 st.markdown("<div style='height:.35rem'></div>", unsafe_allow_html=True)
 
+
 if st.session_state.active_section == "overview":
     overview_risk = df_risk.sort_values("risk_score", ascending=False).head(6)
     kpi_columns = st.columns(4)
     kpi_cards = [
         ("MAQUINAS MONITOREADAS", len(df_machines), f"{len(df_machines)} unidades IoT", "blue", "SCADA ACTIVE"),
-        ("RIESGO CRITICO", critical_count, "Intervención prioritaria" if critical_count else "Sin críticos activos", "red" if critical_count else "green", ""),
+        ("RIESGO CRITICO", critical_count, "Intervencion prioritaria" if critical_count else "Sin criticos activos", "red" if critical_count else "green", ""),
         ("PROXIMO MANTENIMIENTO", next_date_text, "Ventana programada", "orange", ""),
-        ("RIESGO PROMEDIO", f"{avg_risk:.1f}%", "Índice global", "red" if fleet_tone == "red" else "orange" if fleet_tone == "yellow" else "green", "FLEET AVG"),
+        ("RIESGO PROMEDIO", f"{avg_risk:.1f}%", "Indice global", "red" if fleet_tone == "red" else "orange" if fleet_tone == "yellow" else "green", "FLEET AVG"),
     ]
     for column, card in zip(kpi_columns, kpi_cards):
         with column:
             st.markdown(render_stitch_kpi(*card), unsafe_allow_html=True)
     with st.container(border=True, key="risk_distribution_panel"):
-        st.markdown("<div class='section-head'><div><h2>Distribución de riesgo operacional por activo</h2><p>Probabilidad estimada de falla en las próximas 24 horas.</p></div><span class='pill'>FLEET AVG</span></div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='section-head'><div><h2>Distribucion de riesgo operacional por activo</h2>"
+            "<p>Probabilidad estimada de falla en las proximas 24 horas.</p></div>"
+            "<span class='pill'>FLEET AVG</span></div>",
+            unsafe_allow_html=True,
+        )
         render_risk_legend()
         st.plotly_chart(risk_figure(overview_risk), width="stretch", config={"displayModeBar": False})
     with st.container(border=True, key="risk_matrix_panel"):
-        st.markdown("<div class='section-head'><div><h2>Matriz diagnóstica de flota</h2><p>Ranking calculado a partir de la última lectura disponible.</p></div></div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='section-head'><div><h2>Matriz diagnostica de flota</h2>"
+            "<p>Ranking calculado desde la ultima lectura disponible.</p></div></div>",
+            unsafe_allow_html=True,
+        )
         render_risk_table(overview_risk, selected_status, selected_criticality)
 
 if st.session_state.active_section == "telemetry":
-    render_demo_simulator(
-        live_df,
-        selected_machine,
-        model,
-        feature_cols,
-        meta.get("decision_threshold", 0.5),
-        lambda chart_rows: st.plotly_chart(
-            telemetry_figure(chart_rows),
-            width="stretch",
-            config={"displayModeBar": False},
-        ),
-    )
-    render_machine_detail(df_errors, selected_machine)
+    with st.container(border=True, key="live_telemetry_panel"):
+        st.markdown(
+            "<div class='section-head'><div><h2>Telemetria en Vivo</h2>"
+            "<p>Vista historica de las lecturas disponibles para el activo seleccionado.</p></div>"
+            "<span class='pill'>HISTORICO LIVE_DEMO</span></div>",
+            unsafe_allow_html=True,
+        )
+        df_live_selected = df_telemetry[
+            df_telemetry["machine_id"] == selected_machine
+        ].sort_values("timestamp")
+        chart_placeholder = st.empty()
+        if not df_live_selected.empty:
+            simulation_time = st.session_state.get("demo_sim_datetime")
+            if simulation_time is None:
+                selected_period = st.session_state.get("demo_sim_period", "24H")
+                live_chart_rows = df_live_selected.tail(PERIOD_HOURS.get(selected_period, 24))
+                st.markdown(
+                    "<div class='chart-label'><span>TELEMETRÍA EN VIVO</span>"
+                    "<span class='eyebrow'>ÚLTIMAS LECTURAS HISTÓRICAS</span></div>",
+                    unsafe_allow_html=True,
+                )
+                chart_placeholder.plotly_chart(
+                    telemetry_figure(live_chart_rows),
+                    width="stretch",
+                    config={"displayModeBar": False},
+                    key="telemetry_main_chart",
+                )
+            render_machine_detail(df_errors, selected_machine)
+
+            latest = df_live_selected.iloc[-1]
+            previous = df_live_selected.iloc[-2] if len(df_live_selected) > 1 else latest
+            metric_cols = st.columns(3)
+            with metric_cols[0]:
+                st.metric("Voltaje", f"{latest['voltage']:.2f} V", f"{latest['voltage'] - previous['voltage']:+.2f} V")
+            with metric_cols[1]:
+                st.metric("Vibracion", f"{latest['vibration']:.2f} mm/s", f"{latest['vibration'] - previous['vibration']:+.2f} mm/s", delta_color="inverse")
+            with metric_cols[2]:
+                st.metric("Presion", f"{latest['pressure']:.2f} bar", f"{latest['pressure'] - previous['pressure']:+.2f} bar", delta_color="inverse")
+        else:
+            st.info(f"No hay lecturas historicas para {selected_machine}.")
+
+    with st.container(border=True, key="demo_telemetry_section"):
+        st.markdown(
+            "<div class='section-head'><div><h2>Telemetria de Demostracion</h2>"
+            "<p>Reproduccion horaria del conjunto procesado y prediccion del riesgo con el modelo.</p></div>"
+            "<span class='pill'>SIMULADOR</span></div>",
+            unsafe_allow_html=True,
+        )
+        render_demo_simulator(
+            live_df,
+            selected_machine,
+            model,
+            feature_cols,
+            meta.get("decision_threshold", 0.5),
+            lambda chart_rows: render_replayed_telemetry(
+                chart_placeholder, chart_rows, st.session_state.get("demo_sim_period", "24H")
+            ),
+        )
 
 if st.session_state.active_section == "anomalies":
     anomaly_telemetry = df_telemetry[df_telemetry["machine_id"] == selected_machine].sort_values("timestamp")
