@@ -7,7 +7,7 @@ import streamlit as st
 from components.machine_detail import render_machine_detail
 from components.sensor_chart import render_sensor_chart
 from components.risk_table import render_risk_table
-from utils.data_loader import compute_risk_from_model, load_live_demo_data
+from utils.data_loader import compute_risk_from_model, get_priority_machine, load_live_demo_data
 from utils.model_loader import get_model
 
 
@@ -26,10 +26,13 @@ st.markdown(
     :root { --bg:#0b1326; --surface:#111a2d; --surface-2:#171f33; --surface-3:#222a3d; --line:#424754; --text:#dae2fd; --muted:#9da6bd; --blue:#7eabff; --blue-strong:#4d8eff; --orange:#ffb690; --red:#ffb4ab; --green:#54e18c; }
     html, body, [class*="css"], [data-testid="stAppViewContainer"] { font-family:Inter,sans-serif; }
     [data-testid="stAppViewContainer"] { background:var(--bg); color:var(--text); }
-    [data-testid="stHeader"] { background:rgba(11,19,38,.85); }
-    [data-testid="stMainBlockContainer"] { max-width:none; padding:1.25rem 2rem 2.5rem; }
-    [data-testid="stSidebar"] { background:linear-gradient(180deg,#171f33 0%,#0b1326 100%); border-right:1px solid rgba(126,171,255,.2); }
-    [data-testid="stSidebar"] > div:first-child { padding:1.25rem 1rem; }
+    [data-testid="stHeader"] { display:none; }
+    [data-testid="stMainBlockContainer"] { max-width:none; padding:.65rem 1.2rem 2rem; }
+    [data-testid="stMainBlockContainer"] > div[data-testid="stVerticalBlock"] { gap:.55rem; }
+    [data-testid="stSidebar"] { min-width:19rem!important; width:19rem!important; background:linear-gradient(180deg,#171f33 0%,#0b1326 100%); border-right:1px solid rgba(126,171,255,.2); }
+    [data-testid="stSidebar"] > div:first-child { padding:.3rem .8rem; }
+    [data-testid="stSidebarHeader"] { height:1.5rem!important; min-height:1.5rem!important; margin-bottom:0!important; }
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap:.45rem; }
     [data-testid="stMetric"] { background:var(--surface-2); border:1px solid rgba(126,171,255,.15); border-radius:8px; padding:1rem; }
     [data-testid="stMetricLabel"] { color:var(--muted); font-family:'JetBrains Mono',monospace; font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; }
     [data-testid="stMetricValue"] { color:var(--text); font-family:'JetBrains Mono',monospace; font-weight:700; }
@@ -38,11 +41,11 @@ st.markdown(
     [data-testid="stTabs"] button[role="tab"] { color:var(--muted); border-radius:6px; font-weight:600; }
     [data-testid="stTabs"] button[role="tab"][aria-selected="true"] { color:#001a42; background:var(--blue-strong); }
     [data-testid="stVerticalBlockBorderWrapper"] { border-color:rgba(126,171,255,.14); background:rgba(23,31,51,.72); border-radius:8px; }
-    [data-testid="stSidebar"] button[kind="primary"] { background:#4d8eff; color:#001a42; border-color:#4d8eff; font-weight:700; }
-    [data-testid="stSidebar"] button[kind="secondary"] { background:transparent; color:#c2c6d6; border-color:transparent; text-align:left; }
-    [data-testid="stSidebar"] button[kind="secondary"]:hover { background:#222a3d; color:#dae2fd; border-color:rgba(126,171,255,.2); }
-    [data-testid="stSidebar"] [data-testid="stButton"] button { min-height:2.55rem; border-radius:6px; }
-    [data-testid="stSidebar"] [data-testid="stSelectbox"], [data-testid="stSidebar"] [data-testid="stMultiSelect"] { margin-bottom:.35rem; }
+    [data-testid="stSidebar"] button[kind="primary"] { background:linear-gradient(100deg,#4d8eff,#70a4ff); color:#001a42; border:1px solid #91b8ff; box-shadow:0 0 0 1px rgba(77,142,255,.18),0 4px 12px rgba(0,0,0,.18); font-weight:700; }
+    [data-testid="stSidebar"] button[kind="secondary"] { background:rgba(34,42,61,.62); color:#dae2fd; border:1px solid rgba(126,171,255,.18); text-align:left; }
+    [data-testid="stSidebar"] button[kind="secondary"]:hover { background:rgba(77,142,255,.18); color:#fff; border-color:rgba(126,171,255,.55); }
+    [data-testid="stSidebar"] [data-testid="stButton"] button { min-height:2.45rem; border-radius:6px; }
+    [data-testid="stSidebar"] [data-testid="stSelectbox"], [data-testid="stSidebar"] [data-testid="stMultiSelect"] { margin-bottom:.2rem; }
     [data-testid="stDataFrame"] { border:1px solid rgba(126,171,255,.14); }
     h1, h2, h3 { font-family:'Space Grotesk',sans-serif!important; letter-spacing:0!important; }
     h1 { font-size:2rem!important; color:var(--text)!important; } h2 { font-size:1.3rem!important; } h3 { font-size:1.05rem!important; }
@@ -72,13 +75,33 @@ st.markdown(
     .heat-cell { display:flex; flex-direction:column; gap:.35rem; min-height:5.7rem; padding:.55rem; background:var(--surface-2); border:1px solid rgba(126,171,255,.1); border-radius:5px; color:var(--muted); font:500 .58rem 'JetBrains Mono',monospace; text-align:center; }
     .heat-cell span { padding:.25rem .15rem; border-radius:2px; background:rgba(84,225,140,.12); } .heat-cell span.red { background:rgba(255,180,171,.16); } .heat-cell span.orange { background:rgba(255,182,144,.16); } .heat-cell strong { font-size:.68rem; } .red { color:var(--red); } .orange { color:var(--orange); } .green { color:var(--green); }
     .sidebar-card { padding:.85rem; border:1px solid rgba(126,171,255,.18); border-radius:8px; background:rgba(34,42,61,.6); margin:.65rem 0; }
-    .source-card { padding:.65rem .75rem; border:1px solid rgba(84,225,140,.24); border-left:3px solid var(--green); border-radius:6px; background:rgba(24,57,54,.32); margin:.55rem 0; }
+    .source-card,.sidebar-info-card { padding:.65rem .75rem; border:1px solid rgba(126,171,255,.24); border-left:3px solid var(--blue); border-radius:6px; background:rgba(34,42,61,.58); margin:.55rem 0; }
+    .source-card { border-color:rgba(84,225,140,.24); border-left-color:var(--green); background:rgba(24,57,54,.32); }
     .source-value { color:var(--text); font:600 .88rem 'Space Grotesk',sans-serif; margin:.35rem 0 .2rem; }
     .source-note { color:var(--muted); font-size:.65rem; line-height:1.35; }
     .sidebar-heading { margin:.7rem 0 .25rem; }
-    .copilot-panel { display:flex; align-items:center; justify-content:space-between; gap:1rem; }
-    .copilot-panel p { color:var(--muted); font-size:.84rem; margin:.35rem 0 0; }
-    .copilot-panel [data-testid="stButton"] button { min-height:2.7rem; border-color:#4d8eff; background:#4d8eff; color:#061126; font-weight:700; }
+    [data-testid="stSidebar"] .st-key-sidebar_filters { padding:.55rem .7rem!important; border:1px solid rgba(126,171,255,.2); border-radius:6px; background:rgba(34,42,61,.42); }
+    .st-key-sidebar_filters [data-testid="stButtonGroup"] > div { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.25rem; }
+    .st-key-sidebar_filters [data-testid="stButtonGroup"] button { width:100%; min-width:0; min-height:1.8rem; padding:.2rem .35rem; border-radius:5px; font-size:.68rem; }
+    .st-key-sidebar_filters [data-testid="stButtonGroup"] button[aria-pressed="true"] { border-color:rgba(126,171,255,.5); background:rgba(77,142,255,.26); color:var(--text); }
+    [data-testid="stSidebar"] [data-testid="stButton"] button[kind="secondary"] { font-size:.8rem; }
+    [data-testid="stSidebar"] hr { margin:.35rem 0; }
+    [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"]:has(.topbar), [data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"]:has(.banner) { margin-bottom:-.25rem; }
+    .topbar { margin-bottom:.2rem; }
+    .banner { gap:.65rem; padding:.7rem 1rem; margin-bottom:.25rem; }
+    .banner > div:first-child { min-width:0; flex:1; }
+    .banner-title { display:flex; align-items:center; flex-wrap:wrap; gap:.4rem; }
+    .st-key-fleet_ai_panel { padding:.65rem .85rem!important; }
+    .ai-panel-heading { display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
+    .ai-panel-heading strong { display:block; margin-top:.2rem; color:var(--text); font:600 1rem 'Space Grotesk',sans-serif; }
+    .ai-panel-summary { margin:.2rem 0 0; color:var(--muted); font-size:.78rem; }
+    .ai-diagnostic { margin-top:.45rem; padding-top:.55rem; border-top:1px solid rgba(126,171,255,.2); }
+    .ai-diagnostic-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.55rem; margin-top:.4rem; }
+    .ai-result-card { min-width:0; padding:.6rem .65rem; border:1px solid rgba(126,171,255,.18); border-radius:6px; background:rgba(34,42,61,.55); }
+    .ai-result-title { display:block; margin-top:.3rem; color:var(--text); font:600 .82rem 'Space Grotesk',sans-serif; overflow-wrap:anywhere; }
+    .ai-result-card p,.ai-result-card li { color:var(--muted); font-size:.74rem; line-height:1.4; overflow-wrap:anywhere; }
+    .ai-result-card p { margin:.35rem 0 0; }
+    .ai-result-card ul { margin:.3rem 0 0; padding-left:1rem; }
     .maintenance-hero { border-left-color:var(--state-color); }
     .maintenance-hero strong { color:var(--state-color); }
     .meta-row { display:flex; justify-content:space-between; gap:.5rem; padding:.25rem 0; color:var(--muted); font:.7rem 'JetBrains Mono',monospace; } .meta-row strong { color:var(--text); text-align:right; font-weight:500; }
@@ -86,6 +109,8 @@ st.markdown(
     .maintenance-hero { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1.15rem; border:1px solid rgba(126,171,255,.3); border-left:4px solid var(--red); border-radius:8px; background:linear-gradient(100deg,rgba(2,103,184,.55),rgba(23,31,51,.86)); }
     .maintenance-hero h2 { margin:.35rem 0; font-size:1.35rem!important; } .maintenance-hero p { color:#d6e5ff; margin:0; font-size:.82rem; } .maintenance-hero strong { color:var(--red); }
     .resource-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-top:1rem; } .resource-card { display:flex; gap:.75rem; align-items:center; padding:.85rem; background:var(--surface-2); border:1px solid rgba(126,171,255,.14); border-radius:8px; } .resource-icon { width:2.2rem; height:2.2rem; display:grid; place-items:center; border-radius:6px; background:rgba(77,142,255,.18); color:var(--blue); font-size:1.15rem; } .resource-card strong { display:block; margin-top:.2rem; color:var(--text); font-size:.84rem; } .resource-card span { color:var(--muted); font:.65rem 'JetBrains Mono',monospace; }
+    @media (max-width:900px) { .ai-diagnostic-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .ai-result-card:last-child { grid-column:1/-1; } }
+    @media (max-width:600px) { .ai-diagnostic-grid { grid-template-columns:1fr; } .ai-result-card:last-child { grid-column:auto; } }
     @media (max-width:800px) { [data-testid="stMainBlockContainer"] { padding:.75rem 1rem 1.5rem; } .banner { align-items:flex-start; flex-direction:column; } .risk-legend { justify-content:flex-start; flex-wrap:wrap; } .stitch-kpi-value { font-size:1.35rem; } .telemetry-head { align-items:flex-start; flex-direction:column; } .anomaly-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .resource-grid { grid-template-columns:1fr; } .maintenance-hero { align-items:flex-start; flex-direction:column; } .topbar > div:last-child { display:none; } }
     </style>
     """,
@@ -236,20 +261,31 @@ def render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols
             if st.button(label, key=f"sidebar_{section_id}", width="stretch", type=sidebar_type):
                 st.session_state.active_section = section_id
                 rerun_app()
-        st.markdown("<div class='eyebrow sidebar-heading'>FILTROS DE FLOTA</div>", unsafe_allow_html=True)
-        selected_machine = st.selectbox("ID de máquina", df_machines["machine_id"].tolist())
-        status_options = {"Todos los estados": ["Crítico", "Moderado", "Estable"], "🔴 Crítico · acción requerida": ["Crítico"], "🟡 Revisión": ["Moderado"], "🟢 Normal": ["Estable"]}
-        selected_status = st.selectbox("Estado", list(status_options), format_func=lambda option: option)
-        selected_status = status_options[selected_status]
+        with st.container(key="sidebar_filters"):
+            st.markdown("<div class='eyebrow sidebar-heading'>FILTROS DE FLOTA</div>", unsafe_allow_html=True)
+            machine_ids = df_machines["machine_id"].tolist()
+            default_machine = get_priority_machine(df_risk)["machine_id"]
+            if st.session_state.get("selected_machine_filter") not in machine_ids:
+                st.session_state.selected_machine_filter = default_machine
+            selected_machine = st.selectbox("ID de máquina", machine_ids, key="selected_machine_filter")
+            status_options = ["Crítico", "Moderado", "Estable"]
+            selected_status = st.pills(
+                "Filtro Estado",
+                status_options,
+                selection_mode="multi",
+                default=status_options,
+                format_func=lambda level: {"Crítico": "🔴 CRÍTICO", "Moderado": "🟠 MODERADO", "Estable": "🟢 ESTABLE"}[level],
+                key="risk_filter_pills",
+                width="stretch",
+            )
         criticality_for_status = {"Crítico": "Alta", "Moderado": "Media", "Estable": "Baja"}
         selected_criticality = [criticality_for_status[level] for level in selected_status]
         machine_row = df_machines[df_machines["machine_id"] == selected_machine].iloc[0]
         metadata = [("ID", machine_row["machine_id"]), ("Tipo", machine_row["type"]), ("Ubicacion", machine_row["location"]), ("Operacion", f"{machine_row['operating_hours']} h"), ("Ultimo mant.", machine_row["last_maintenance"])]
         rows = "".join(f"<div class='meta-row'><span>{label}</span><strong>{html.escape(str(value))}</strong></div>" for label, value in metadata)
-        with st.expander(f"Activo {selected_machine} · ficha", expanded=False):
-            st.markdown(f"<div class='sidebar-card'>{rows}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='sidebar-info-card'><div class='eyebrow'>ACTIVO SELECCIONADO</div>{rows}</div>", unsafe_allow_html=True)
         model_origin = "GitHub" if str(model_source).lower().startswith("github") else "respaldo local"
-        st.caption(f"Modelo: {model_origin} · {len(feature_cols)} variables")
+        st.markdown(f"<div class='sidebar-info-card'><div class='eyebrow'>MODELO PREDICTIVO</div><div class='source-value'>{html.escape(model_origin)}</div><div class='source-note'>{len(feature_cols)} variables · cálculo de riesgo por activo</div></div>", unsafe_allow_html=True)
         if st.button("Actualizar demo", icon=":material/refresh:", width="stretch"):
             st.cache_data.clear()
             st.cache_resource.clear()
@@ -266,7 +302,6 @@ except Exception as error:
     st.error(f"Error al cargar datos o modelo: {error}")
     st.stop()
 
-
 selected_machine, selected_status, selected_criticality = render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols)
 st.markdown("<div class='topbar'><div><span class='brand'>&#128295; Mantenimiento predictivo</span><div class='eyebrow'>S08-26-EQUIPO-24 · DESCUBRIMIENTO / MVP · <span style='color:var(--green)'><span class='status-dot'></span>DEMO ACTIVA</span></div></div><div class='mono' style='color:var(--muted);font-size:.7rem'>Streamlit Core 1.63</div></div>", unsafe_allow_html=True)
 st.markdown("<div class='banner'><div><div class='banner-title'>Monitor Diagnóstico Industrial <span class='pill'>PLANTA-SUR // LÍNEA-A</span></div><div class='banner-copy'>Análisis predictivo multivariante sobre el conjunto de datos de demostración.</div></div><div class='pill'><span class='status-dot'></span>FUENTE: LIVE_DEMO</div></div>", unsafe_allow_html=True)
@@ -276,25 +311,40 @@ avg_risk = float(df_risk["risk_score"].mean())
 selected_risk = df_risk[df_risk["machine_id"] == selected_machine].iloc[0]
 next_date = df_machines["next_maintenance"].min()
 next_date_text = next_date.strftime("%d %b %Y") if not df_machines["next_maintenance"].isna().all() else "N/D"
-fleet_top = df_risk.sort_values("priority_score", ascending=False).iloc[0]
+fleet_top = get_priority_machine(df_risk)
 fleet_tone = "red" if critical_count else "yellow" if (df_risk["risk_level"] == "Moderado").any() else "green"
 fleet_state = {"red": "ACCIÓN REQUERIDA", "yellow": "REVISIÓN RECOMENDADA", "green": "OPERACIÓN NORMAL"}[fleet_tone]
 fleet_color = {"red": "#ffb4ab", "yellow": "#ffd166", "green": "#54e18c"}[fleet_tone]
-with st.container(border=True):
-    st.markdown("<div class='copilot-panel'>", unsafe_allow_html=True)
-    copilot_text, copilot_action = st.columns([5, 1], vertical_alignment="center")
-    with copilot_text:
-        st.markdown(f"<div><div class='eyebrow'>COPILOTO PREDICTIVO</div><strong style='font-family:Space Grotesk,sans-serif;font-size:1.05rem'>Diagnóstico de flota</strong><span class='pill' style='margin-left:.5rem;color:{fleet_color}'>{fleet_state}</span><p>{critical_count} activo(s) críticos · Riesgo más alto: {html.escape(str(fleet_top['machine_id']))} ({fleet_top['risk_score']:.0f}%).</p></div>", unsafe_allow_html=True)
-    with copilot_action:
-        run_ai_analysis = st.button("Analizar con IA", icon=":material/auto_awesome:", key="analyze_fleet", width="stretch")
-    st.markdown("</div>", unsafe_allow_html=True)
-if run_ai_analysis:
-    if fleet_tone == "red":
-        st.error(f"{fleet_state}: intervenir activo {fleet_top['machine_id']} ({fleet_top['risk_level']}, riesgo {fleet_top['risk_score']:.0f}%). Acción sugerida: {fleet_top['priority']}.")
-    elif fleet_tone == "yellow":
-        st.warning(f"{fleet_state}: programar revisión de {fleet_top['machine_id']} (riesgo {fleet_top['risk_score']:.0f}%). Acción sugerida: {fleet_top['priority']}.")
-    else:
-        st.success(f"{fleet_state}: activo {fleet_top['machine_id']} estable (riesgo {fleet_top['risk_score']:.0f}%). No se requiere intervención.")
+selected_priority = str(selected_risk["priority"])
+selected_action = {
+    "Intervenir": "Programar intervención prioritaria y revisar el equipo antes de continuar la operación.",
+    "Inspeccionar": "Programar una inspección técnica y validar los componentes asociados al riesgo.",
+    "Monitorear": "Mantener monitoreo reforzado y revisar los errores recientes.",
+    "Ninguna": "Continuar con el monitoreo preventivo habitual.",
+}.get(selected_priority, "Revisar el activo según el procedimiento de mantenimiento.")
+if fleet_top["risk_level"] == "Crítico":
+    fleet_action = "Intervención prioritaria: detener y revisar el activo antes de continuar la operación."
+elif fleet_top["risk_level"] == "Moderado":
+    fleet_action = "Inspección prioritaria: programar revisión técnica y validar sus componentes."
+else:
+    fleet_action = "Mantener el monitoreo preventivo; no hay activos críticos o moderados."
+recommended_actions = [(str(selected_machine), selected_action)]
+if str(selected_machine) != str(fleet_top["machine_id"]) and fleet_top["risk_level"] in {"Crítico", "Moderado"}:
+    recommended_actions.append((str(fleet_top["machine_id"]), fleet_action))
+action_items_html = "".join(
+    f"<li><strong>{html.escape(machine_id)}:</strong> {html.escape(action)}</li>"
+    for machine_id, action in recommended_actions
+)
+with st.container(border=True, key="fleet_ai_panel"):
+    priority_copy = f"Atención prioritaria: {fleet_top['machine_id']} · {fleet_top['risk_level']} · {fleet_top['risk_score']:.1f}%" if fleet_top["risk_level"] in {"Crítico", "Moderado"} else "Sin activos críticos o moderados en la flota."
+    st.markdown(
+        f"<div class='ai-panel-heading'><div><div class='eyebrow'>COPILOTO PREDICTIVO</div><strong>Diagnóstico y prioridad de mantenimiento</strong></div><span class='pill' style='color:{fleet_color}'>{fleet_state}</span></div><p class='ai-panel-summary'>{critical_count} activo(s) críticos · {html.escape(priority_copy)}</p>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"<div class='ai-diagnostic'><div class='eyebrow'>DIAGNÓSTICO ACTUALIZADO</div><div class='ai-diagnostic-grid'><section class='ai-result-card'><div class='eyebrow'>ACTIVO SELECCIONADO</div><strong class='ai-result-title'>{html.escape(str(selected_machine))}</strong><p>{html.escape(str(selected_risk['risk_level']))} · riesgo <strong>{selected_risk['risk_score']:.1f}%</strong></p><p>Prioridad: <strong>{html.escape(selected_priority)}</strong></p></section><section class='ai-result-card'><div class='eyebrow'>PRIORIDAD DE FLOTA</div><strong class='ai-result-title'>{html.escape(str(fleet_top['machine_id']))} · {html.escape(str(fleet_top['risk_level']))}</strong><p>{critical_count} activo(s) críticos</p><p>Riesgo: <strong>{fleet_top['risk_score']:.1f}%</strong> · {html.escape(str(fleet_top['priority']))}</p></section><section class='ai-result-card'><div class='eyebrow'>ACCIONES RECOMENDADAS</div><ul>{action_items_html}</ul></section></div></div>",
+        unsafe_allow_html=True,
+    )
 
 nav_columns = st.columns(4)
 for nav_column, (section_id, label) in zip(nav_columns, SECTION_OPTIONS):
