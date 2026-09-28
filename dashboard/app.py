@@ -34,9 +34,17 @@ st.markdown(
     html, body, [class*="css"], [data-testid="stAppViewContainer"] { font-family:Inter,sans-serif; }
     [data-testid="stAppViewContainer"] { background:var(--bg); color:var(--text); }
     [data-testid="stHeader"] { display:none; }
+    [data-testid="stHeader"]:has([data-testid="stExpandSidebarButton"]) { display:block!important; overflow:visible!important; height:2.2rem!important; min-height:2.2rem!important; background:transparent!important; z-index:1000; }
+    [data-testid="stHeader"]:has([data-testid="stExpandSidebarButton"]) [data-testid="stToolbar"] { display:flex!important; overflow:visible!important; height:2.2rem!important; min-height:2.2rem!important; background:transparent!important; }
+    [data-testid="stExpandSidebarButton"] { position:fixed!important; top:.35rem!important; left:.35rem!important; z-index:1001!important; display:grid!important; place-items:center!important; visibility:visible!important; opacity:1!important; width:2rem; height:2rem; margin:0!important; padding:0!important; border:1px solid rgba(126,171,255,.38)!important; border-radius:7px!important; background:rgba(23,31,51,.98)!important; color:var(--text)!important; box-shadow:0 2px 8px rgba(0,0,0,.32); transition:background .16s ease,border-color .16s ease,transform .16s ease; }
+    [data-testid="stExpandSidebarButton"]:hover { background:rgba(77,142,255,.24)!important; border-color:var(--blue)!important; transform:translateY(-1px); }
+    [data-testid="stExpandSidebarButton"] > * { display:none!important; }
+    [data-testid="stExpandSidebarButton"]::after { content:"\\2630"; color:var(--text); font:700 1rem/1 Inter,sans-serif; }
     [data-testid="stMainBlockContainer"] { max-width:none; padding:.65rem 1.2rem 2rem; }
     [data-testid="stMainBlockContainer"] > div[data-testid="stVerticalBlock"] { gap:.55rem; }
     [data-testid="stSidebar"] { min-width:19rem!important; width:19rem!important; background:linear-gradient(180deg,#171f33 0%,#0b1326 100%); border-right:1px solid rgba(126,171,255,.2); }
+    [data-testid="stSidebar"][aria-expanded="false"] { min-width:0!important; max-width:0!important; width:0!important; flex:0 0 0!important; overflow:hidden!important; border-right:0!important; }
+    [data-testid="stSidebar"][aria-expanded="true"] { min-width:19rem!important; max-width:19rem!important; width:19rem!important; flex:0 0 19rem!important; }
     [data-testid="stSidebar"] > div:first-child { padding:.3rem .8rem; }
     [data-testid="stSidebarHeader"] { height:1.5rem!important; min-height:1.5rem!important; margin-bottom:0!important; }
     [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap:.45rem; }
@@ -77,9 +85,12 @@ st.markdown(
     .ai-card { padding:1rem; border:1px solid rgba(126,171,255,.3); border-radius:8px; background:linear-gradient(110deg,rgba(77,142,255,.18),rgba(23,31,51,.8)); }
     .ai-card p { color:var(--muted); font-size:.84rem; margin:.35rem 0 0; }
     .section-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin:1.25rem 0 .8rem; } .section-head h2 { margin:0; } .section-head p { color:var(--muted); margin:.25rem 0 0; font-size:.8rem; line-height:1.4; }
-    [class*='st-key-kpi_card_'] button { display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; width:100%; min-height:6.5rem; padding:.6rem .75rem; white-space:pre-wrap; text-align:left; color:var(--text); background:linear-gradient(150deg,rgba(34,42,61,.9),rgba(17,26,45,.92)); border:1px solid rgba(126,171,255,.2); border-bottom:2px solid var(--card-accent,#7eabff); border-radius:8px; transition:border-color .18s ease,transform .18s ease,background .18s ease; }
+    [class*='st-key-kpi_card_'] button { display:flex!important; flex-direction:column; align-items:flex-start!important; justify-content:flex-start!important; width:100%; min-height:5.3rem; padding:.5rem .65rem; white-space:pre-wrap; text-align:left!important; color:var(--text); background:linear-gradient(150deg,rgba(34,42,61,.9),rgba(17,26,45,.92)); border:1px solid rgba(126,171,255,.2); border-bottom:2px solid var(--card-accent,#7eabff); border-radius:8px; transition:border-color .18s ease,transform .18s ease,background .18s ease; }
     [class*='st-key-kpi_card_'] button:hover { transform:translateY(-1px); border-color:var(--card-accent,#7eabff); color:#fff; }
-    [class*='st-key-kpi_card_'] button p { margin:.08rem 0!important; line-height:1.2; }
+    [class*='st-key-kpi_card_'] button > div[data-testid="stMarkdownContainer"] { display:block!important; align-self:stretch!important; width:100%!important; text-align:left!important; }
+    [class*='st-key-kpi_card_'] button [data-testid="stMarkdownContainer"] p { margin:0!important; padding:0!important; line-height:1.16!important; text-align:left!important; }
+    [class*='st-key-kpi_card_'] button [data-testid="stMarkdownContainer"] p > strong:first-of-type { color:var(--muted); font:600 .64rem 'JetBrains Mono',monospace; letter-spacing:.05em; }
+    [class*='st-key-kpi_card_'] button [data-testid="stMarkdownContainer"] p > strong:nth-of-type(2) { color:var(--text); font:700 1.1rem 'JetBrains Mono',monospace; }
     [class*='st-key-kpi_card_'] button p:first-child { color:var(--muted); font:500 .64rem 'JetBrains Mono',monospace; letter-spacing:.05em; }
     [class*='st-key-kpi_card_'] button p:nth-child(2) { margin:.25rem 0; color:var(--text); font:700 1.22rem 'JetBrains Mono',monospace; }
     [class*='st-key-kpi_card_'] button p:nth-child(3),[class*='st-key-kpi_card_'] button p:nth-child(4) { color:var(--muted); font:500 .65rem 'JetBrains Mono',monospace; }
@@ -117,10 +128,12 @@ st.markdown(
     .st-key-fleet_priority_card_critical button,.st-key-sidebar_fleet_alert_critical button { border-color:rgba(255,83,83,.62); background:linear-gradient(145deg,rgba(111,24,34,.55),rgba(34,31,45,.9)); color:#ffe5e2; animation:alert-card-pulse 2.2s ease-in-out infinite; }
     .st-key-fleet_priority_card_moderate button,.st-key-sidebar_fleet_alert_moderate button { border-color:rgba(255,138,50,.62); background:linear-gradient(145deg,rgba(112,62,20,.48),rgba(34,37,48,.9)); color:#ffe9d6; }
     .st-key-fleet_priority_card_stable button,.st-key-sidebar_fleet_alert_stable button { border-color:rgba(84,225,140,.35); background:rgba(24,57,54,.32); color:#d9ffe5; }
-    [class*='st-key-fleet_priority_card'] button,[class*='st-key-sidebar_fleet_alert'] button { display:flex!important; flex-direction:column; align-items:stretch!important; justify-content:flex-start!important; min-height:6.1rem; height:100%; padding:.5rem .65rem; white-space:pre-wrap; text-align:left!important; border-width:1px 1px 1px 3px; border-radius:7px; }
+    [class*='st-key-fleet_priority_card'] button,[class*='st-key-sidebar_fleet_alert'] button { display:flex!important; flex-direction:column; align-items:flex-start!important; justify-content:flex-start!important; min-height:5.2rem; height:100%; padding:.45rem .6rem; white-space:pre-wrap; text-align:left!important; border-width:1px 1px 1px 3px; border-radius:7px; }
     [class*='st-key-fleet_priority_card'] [data-testid="stMarkdownContainer"],[class*='st-key-sidebar_fleet_alert'] [data-testid="stMarkdownContainer"],[class*='st-key-selected_asset_card'] [data-testid="stMarkdownContainer"],[class*='st-key-recommended_actions_card'] [data-testid="stMarkdownContainer"] { width:100%; text-align:left!important; }
-    [class*='st-key-selected_asset_card'] button,[class*='st-key-recommended_actions_card'] button { display:flex!important; flex-direction:column; align-items:stretch!important; justify-content:flex-start!important; min-height:6.1rem; height:100%; width:100%; padding:.5rem .65rem; white-space:pre-wrap; text-align:left!important; border:1px solid rgba(126,171,255,.2); border-left:3px solid var(--card-accent,#7eabff); border-radius:7px; background:linear-gradient(180deg,rgba(34,42,61,.66),rgba(34,42,61,.4)); color:var(--text); }
-    [class*='st-key-selected_asset_card'] button p,[class*='st-key-recommended_actions_card'] button p,[class*='st-key-fleet_priority_card'] button p,[class*='st-key-sidebar_fleet_alert'] button p { margin:.08rem 0!important; line-height:1.2; }
+    [class*='st-key-selected_asset_card'] button,[class*='st-key-recommended_actions_card'] button { display:flex!important; flex-direction:column; align-items:flex-start!important; justify-content:flex-start!important; min-height:5.2rem; height:100%; width:100%; padding:.45rem .6rem; white-space:pre-wrap; text-align:left!important; border:1px solid rgba(126,171,255,.2); border-left:3px solid var(--card-accent,#7eabff); border-radius:7px; background:linear-gradient(180deg,rgba(34,42,61,.66),rgba(34,42,61,.4)); color:var(--text); }
+    [class*='st-key-fleet_priority_card'] button *,[class*='st-key-sidebar_fleet_alert'] button *,[class*='st-key-selected_asset_card'] button *,[class*='st-key-recommended_actions_card'] button *,[class*='st-key-kpi_card_'] button * { text-align:left!important; }
+    [class*='st-key-fleet_priority_card'] button > div[data-testid="stMarkdownContainer"],[class*='st-key-sidebar_fleet_alert'] button > div[data-testid="stMarkdownContainer"],[class*='st-key-recommended_actions_card'] button > div[data-testid="stMarkdownContainer"],[class*='st-key-selected_asset_card'] button > div[data-testid="stMarkdownContainer"],[class*='st-key-kpi_card_'] button > div[data-testid="stMarkdownContainer"] { display:block!important; align-self:stretch!important; width:100%!important; margin:0!important; text-align:left!important; }
+    [class*='st-key-fleet_priority_card'] button p,[class*='st-key-sidebar_fleet_alert'] button p,[class*='st-key-recommended_actions_card'] button p,[class*='st-key-selected_asset_card'] button p,[class*='st-key-kpi_card_'] button p { margin:0!important; padding:0!important; line-height:1.12!important; text-align:left!important; }
     [class*='st-key-selected_asset_card_critical'] button { border-color:rgba(255,83,83,.58); background:linear-gradient(145deg,rgba(111,24,34,.46),rgba(34,31,45,.94)); animation:alert-card-pulse 2.2s ease-in-out infinite; }
     [class*='st-key-selected_asset_card_moderate'] button { border-color:rgba(255,138,50,.58); background:linear-gradient(145deg,rgba(112,62,20,.34),rgba(34,42,61,.82)); }
     [class*='st-key-recommended_actions_card_critical'] button { border-color:rgba(255,83,83,.5); background:linear-gradient(145deg,rgba(111,24,34,.32),rgba(34,31,45,.82)); }
@@ -179,9 +192,24 @@ st.markdown(
     .maintenance-hero { display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:1.15rem; border:1px solid rgba(126,171,255,.3); border-left:4px solid var(--red); border-radius:8px; background:linear-gradient(100deg,rgba(2,103,184,.55),rgba(23,31,51,.86)); }
     .maintenance-hero h2 { margin:.35rem 0; font-size:1.35rem!important; } .maintenance-hero p { color:#d6e5ff; margin:0; font-size:.82rem; } .maintenance-hero strong { color:var(--red); }
     .resource-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-top:1rem; } .resource-card { display:flex; gap:.75rem; align-items:center; padding:.85rem; background:var(--surface-2); border:1px solid rgba(126,171,255,.14); border-radius:8px; } .resource-icon { width:2.2rem; height:2.2rem; display:grid; place-items:center; border-radius:6px; background:rgba(77,142,255,.18); color:var(--blue); font-size:1.15rem; } .resource-card strong { display:block; margin-top:.2rem; color:var(--text); font-size:.84rem; } .resource-card span { color:var(--muted); font:.65rem 'JetBrains Mono',monospace; }
+    .source-card,.sidebar-info-card,.sidebar-card,.ai-analysis-card,.ai-result-card,.heat-cell,.alert-status-card,.resource-card,.priority,.maintenance-hero { box-sizing:border-box; border-radius:7px; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+    .source-card,.sidebar-info-card,.sidebar-card,.ai-analysis-card,.ai-result-card,.alert-status-card,.resource-card,.priority { padding:.62rem .72rem; }
+    .ai-result-card { min-height:0; }
+    .ai-analysis-card { margin:.4rem 0; }
+    .ai-analysis-verdict { margin:.3rem 0 .15rem; }
+    .ai-analysis-copy { margin:.15rem 0 .3rem; line-height:1.35; }
+    .ai-analysis-card .meta-row,.meta-row { padding:.2rem 0; }
+    .heat-cell { align-items:stretch; gap:.25rem; min-height:4.8rem; padding:.45rem; text-align:left; }
+    .heat-cell span { padding:.2rem .35rem; text-align:left; }
+    .resource-card { align-items:flex-start; padding:.62rem .72rem; }
+    .maintenance-hero { padding:.8rem .9rem; }
+    [class*='st-key-heatmap_diagnostic_'] button,[class*='st-key-matrix_telemetry_'] button,[class*='st-key-matrix_diagnostic_'] button,[class*='st-key-maintenance_telemetry_'] button,[class*='st-key-maintenance_diagnostic_'] button { min-height:2rem; padding:.32rem .48rem; border:1px solid rgba(126,171,255,.22); border-radius:6px; background:rgba(34,42,61,.72); text-align:left!important; font-size:.72rem; }
+    [class*='st-key-fleet_priority_card'] button,[class*='st-key-sidebar_fleet_alert'] button,[class*='st-key-selected_asset_card'] button,[class*='st-key-recommended_actions_card'] button,[class*='st-key-kpi_card_'] button,[class*='st-key-heatmap_diagnostic_'] button,[class*='st-key-matrix_telemetry_'] button,[class*='st-key-matrix_diagnostic_'] button,[class*='st-key-maintenance_telemetry_'] button,[class*='st-key-maintenance_diagnostic_'] button { box-sizing:border-box; border-radius:7px; line-height:1.25; }
+    [class*='st-key-fleet_priority_card'] button > div,[class*='st-key-sidebar_fleet_alert'] button > div,[class*='st-key-selected_asset_card'] button > div,[class*='st-key-recommended_actions_card'] button > div,[class*='st-key-kpi_card_'] button > div { display:flex!important; flex-direction:column!important; align-items:flex-start!important; justify-content:flex-start!important; align-self:stretch!important; width:100%!important; min-width:0!important; margin:0!important; text-align:left!important; }
+    [class*='st-key-heatmap_diagnostic_'] button:hover,[class*='st-key-matrix_telemetry_'] button:hover,[class*='st-key-matrix_diagnostic_'] button:hover,[class*='st-key-maintenance_telemetry_'] button:hover,[class*='st-key-maintenance_diagnostic_'] button:hover { border-color:var(--blue); background:rgba(77,142,255,.18); color:var(--text); }
     @media (max-width:900px) { .ai-diagnostic-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .ai-result-card:last-child { grid-column:1/-1; } }
     @media (max-width:600px) { .ai-diagnostic-grid { grid-template-columns:1fr; } .ai-result-card:last-child { grid-column:auto; } }
-    @media (max-width:800px) { [data-testid="stMainBlockContainer"] { padding:.75rem 1rem 1.5rem; } .banner { align-items:flex-start; flex-direction:column; } .risk-legend { justify-content:flex-start; flex-wrap:wrap; } [class*='st-key-kpi_card_'] button { min-height:5.8rem; padding:.5rem; } .telemetry-head { align-items:flex-start; flex-direction:column; } .anomaly-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .resource-grid { grid-template-columns:1fr; } .maintenance-hero { align-items:flex-start; flex-direction:column; } .topbar > div:last-child { display:none; } }
+    @media (max-width:800px) { [data-testid="stMainBlockContainer"] { padding:.75rem 1rem 1.5rem; } .banner { align-items:flex-start; flex-direction:column; } .risk-legend { justify-content:flex-start; flex-wrap:wrap; } [class*='st-key-kpi_card_'] button { min-height:5.5rem; padding:.45rem; } .telemetry-head { align-items:flex-start; flex-direction:column; } .anomaly-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .resource-grid { grid-template-columns:1fr; } .maintenance-hero { align-items:flex-start; flex-direction:column; } .topbar > div:last-child { display:none; } }
     @media (max-width:800px) { .ai-panel-summary { margin-left:0; } .st-key-risk_distribution_panel,.st-key-risk_matrix_panel { padding:.7rem!important; } }
     </style>
     """,
@@ -347,7 +375,7 @@ def render_anomaly_heatmap(df_risk, selected_machine):
         selected_class = "selected-machine" if is_selected else ""
         lamp_tone = "critical" if tone == "red" else "moderate" if tone == "yellow" else ""
         lamp = f"<i class='alert-lamp {lamp_tone}'></i>" if lamp_tone else ""
-        action = "ACCI??N REQUERIDA" if tone == "red" else "REVISI??N" if tone == "yellow" else "NORMAL"
+        action = "ACCI\u00d3N REQUERIDA" if tone == "red" else "REVISI\u00d3N" if tone == "yellow" else "NORMAL"
         machine_id = row["machine_id"]
         with columns[index]:
             st.markdown(
@@ -357,9 +385,9 @@ def render_anomaly_heatmap(df_risk, selected_machine):
                 unsafe_allow_html=True,
             )
             if st.button(
-                "Abrir diagn??stico",
+                "Abrir diagn\u00f3stico",
                 key=f"heatmap_diagnostic_{index}_{machine_id}",
-                help=f"Abrir el diagn??stico de {format_machine_id(machine_id)}",
+                help=f"Abrir el diagn\u00f3stico de {format_machine_id(machine_id)}",
                 width="stretch",
             ):
                 navigate_to_section(machine_id, "anomalies")
@@ -389,7 +417,7 @@ def render_sidebar_ai_card(df_risk, selected_machine, machine_row):
         alert_icon = "\U0001F534" if alert_is_critical else "\U0001F7E0"
         with st.container(key=f"sidebar_fleet_alert_{alert_tone}"):
             if st.button(
-                f"{alert_icon} {alert_count} activos {alert_level}\n\n{format_machine_id(fleet_top['machine_id'])} \u00b7 {float(fleet_top['risk_score']):.1f}%\n\nAbrir diagn\u00f3stico \u2192",
+                f"{alert_icon} {alert_count} activos {alert_level}  \n{format_machine_id(fleet_top['machine_id'])} \u00b7 {float(fleet_top['risk_score']):.1f}%  \nAbrir diagn\u00f3stico \u2192",
                 key="sidebar_fleet_alert",
                 type="primary",
                 width="stretch",
@@ -581,7 +609,7 @@ with st.container(border=True, key="fleet_ai_panel"):
         selected_card_tone = "critical" if selected_tone == "red" else "moderate" if selected_tone == "yellow" else "stable"
         with st.container(key=f"selected_asset_card_{selected_card_tone}"):
             if st.button(
-                f"{selected_lamp} ACTIVO SELECCIONADO\n\n{format_machine_id(selected_machine)} \u00b7 {selected_risk['risk_level']} \u00b7 {selected_risk['risk_score']:.1f}%\n\nPrioridad: {selected_priority}\n\n\u2197 Abrir telemetr\u00eda",
+                f"**{selected_lamp} ACTIVO SELECCIONADO**  \n{format_machine_id(selected_machine)} \u00b7 {selected_risk['risk_level']} \u00b7 {selected_risk['risk_score']:.1f}%  \nPrioridad: {selected_priority}  \n\u2197 Abrir telemetr\u00eda",
                 key="selected_asset_card",
                 type="secondary",
                 width="stretch",
@@ -589,25 +617,36 @@ with st.container(border=True, key="fleet_ai_panel"):
             ):
                 navigate_to_section(selected_machine, "telemetry")
     with diagnostic_columns[1]:
-        with st.container(key=f"fleet_priority_card_{fleet_alert_class}"):
-            fleet_icon = "\U0001F534" if critical_count else "\U0001F7E0" if moderate_count else "\U0001F7E2"
+        simulator_has_reading = st.session_state.get("demo_sim_datetime") is not None
+        priority_row = fleet_top if simulator_has_reading else selected_risk
+        priority_machine_id = str(priority_row["machine_id"])
+        priority_tone = risk_tone(priority_row["risk_level"])
+        priority_card_tone = "critical" if priority_tone == "red" else "moderate" if priority_tone == "yellow" else "stable"
+        priority_icon = "\U0001F534" if priority_tone == "red" else "\U0001F7E0" if priority_tone == "yellow" else "\U0001F7E2"
+        priority_heading = "PRIORIDAD DE FLOTA" if simulator_has_reading else "M\u00c1QUINA SELECCIONADA"
+        priority_detail = (
+            f"{critical_count} cr\u00edticos \u00b7 {moderate_count} moderados"
+            if simulator_has_reading
+            else f"Prioridad: {priority_row['priority']}"
+        )
+        with st.container(key=f"fleet_priority_card_{priority_card_tone}"):
             if st.button(
-                f"{fleet_icon} PRIORIDAD DE FLOTA\n\n{format_machine_id(fleet_top['machine_id'])} \u00b7 {fleet_top['risk_level']} \u00b7 {fleet_top['risk_score']:.1f}%\n\n{critical_count} cr\u00edticos \u00b7 {moderate_count} moderados\n\n\u2197 Abrir diagn\u00f3stico",
+                f"**{priority_icon} {priority_heading}**  \n{format_machine_id(priority_machine_id)} \u00b7 {priority_row['risk_level']} \u00b7 {priority_row['risk_score']:.1f}%  \n{priority_detail}  \n\u2197 Abrir diagn\u00f3stico",
                 key="fleet_priority_diagnostic",
                 type="secondary",
                 width="stretch",
-                help="Abrir anomal\u00edas y diagn\u00f3stico del activo prioritario.",
+                help="Abrir el diagn\u00f3stico del activo mostrado en esta tarjeta.",
             ):
-                navigate_to_section(fleet_top["machine_id"], "anomalies")
+                navigate_to_section(priority_machine_id, "anomalies")
     with diagnostic_columns[2]:
         actions_card_tone = "critical" if critical_count else "moderate" if moderate_count else "stable"
-        actions_summary = "\n".join(
+        actions_summary = "  \n".join(
             f"\u2022 {format_machine_id(machine_id)}: {action}"
             for machine_id, action, _level in recommended_actions
         )
         with st.container(key=f"recommended_actions_card_{actions_card_tone}"):
             if st.button(
-                f"\U0001F6E0 ACCIONES RECOMENDADAS\n\n{actions_summary}\n\n\u2197 Abrir plan de mantenimiento",
+                f"**\U0001F6E0 ACCIONES RECOMENDADAS**  \n{actions_summary}  \n\u2197 Abrir plan de mantenimiento",
                 key="recommended_actions_card",
                 type="secondary",
                 width="stretch",
@@ -646,7 +685,7 @@ if st.session_state.active_section == "overview":
         with column:
             with st.container(key=f"kpi_card_{index}_{tone_class}"):
                 if st.button(
-                    f"**{label}**\n\n**{value}**\n\n{detail}\n\n\u2197 Abrir vista",
+                    f"**{label}**  \n**{value}**  \n{detail}  \n\u2197 Abrir vista",
                     key=f"overview_kpi_{index}",
                     type="secondary",
                     width="stretch",
