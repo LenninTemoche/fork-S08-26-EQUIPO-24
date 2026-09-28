@@ -5,7 +5,7 @@ import html
 import pandas as pd
 import streamlit as st
 
-from components.machine_detail import navigate_to_section
+from components.machine_detail import format_machine_id, navigate_to_section
 
 
 def render_risk_table(df_risk, selected_status, selected_criticality):
@@ -51,7 +51,7 @@ def render_risk_table(df_risk, selected_status, selected_criticality):
 
             with cells[0]:
                 lamp = f"<i class='alert-lamp {tone}'></i>" if tone != "stable" else ""
-                st.markdown(f"{lamp}<strong>{html.escape(str(machine_id))}</strong>", unsafe_allow_html=True)
+                st.markdown(f"{lamp}<strong>{html.escape(format_machine_id(machine_id))}</strong>", unsafe_allow_html=True)
             with cells[1]:
                 risk_lamp = f"<i class='alert-lamp {tone}'></i>" if tone != "stable" else ""
                 st.markdown(
@@ -75,7 +75,7 @@ def render_risk_table(df_risk, selected_status, selected_criticality):
                     if st.button(
                         "Telemetría",
                         key=f"matrix_telemetry_{key_suffix}",
-                        help=f"Ver telemetría del activo {machine_id}",
+                        help=f"Ver telemetría de {format_machine_id(machine_id)}",
                         width="stretch",
                     ):
                         navigate_to_section(machine_id, "telemetry")
@@ -83,7 +83,7 @@ def render_risk_table(df_risk, selected_status, selected_criticality):
                     if st.button(
                         "Diagnóstico",
                         key=f"matrix_diagnostic_{key_suffix}",
-                        help=f"Ver diagnóstico del activo {machine_id}",
+                        help=f"Ver diagnóstico de {format_machine_id(machine_id)}",
                         width="stretch",
                     ):
                         navigate_to_section(machine_id, "anomalies")

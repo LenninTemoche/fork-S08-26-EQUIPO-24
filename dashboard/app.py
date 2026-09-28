@@ -5,7 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from components.machine_detail import navigate_to_section, render_machine_detail
+from components.machine_detail import format_machine_id, navigate_to_section, render_machine_detail
 from components.sensor_chart import render_sensor_chart
 from components.risk_table import render_risk_table
 from components.demo_simulator import (
@@ -77,9 +77,9 @@ st.markdown(
     .ai-card { padding:1rem; border:1px solid rgba(126,171,255,.3); border-radius:8px; background:linear-gradient(110deg,rgba(77,142,255,.18),rgba(23,31,51,.8)); }
     .ai-card p { color:var(--muted); font-size:.84rem; margin:.35rem 0 0; }
     .section-head { display:flex; align-items:end; justify-content:space-between; gap:1rem; margin:1.25rem 0 .8rem; } .section-head h2 { margin:0; } .section-head p { color:var(--muted); margin:.25rem 0 0; font-size:.8rem; line-height:1.4; }
-    [class*='st-key-kpi_card_'] button { display:flex; flex-direction:column; align-items:stretch; justify-content:center; width:100%; min-height:7.1rem; padding:.75rem .85rem; white-space:pre-wrap; text-align:left; color:var(--text); background:linear-gradient(150deg,rgba(34,42,61,.9),rgba(17,26,45,.92)); border:1px solid rgba(126,171,255,.2); border-bottom:2px solid var(--card-accent,#7eabff); border-radius:8px; transition:border-color .18s ease,transform .18s ease,background .18s ease; }
+    [class*='st-key-kpi_card_'] button { display:flex; flex-direction:column; align-items:stretch; justify-content:flex-start; width:100%; min-height:6.5rem; padding:.6rem .75rem; white-space:pre-wrap; text-align:left; color:var(--text); background:linear-gradient(150deg,rgba(34,42,61,.9),rgba(17,26,45,.92)); border:1px solid rgba(126,171,255,.2); border-bottom:2px solid var(--card-accent,#7eabff); border-radius:8px; transition:border-color .18s ease,transform .18s ease,background .18s ease; }
     [class*='st-key-kpi_card_'] button:hover { transform:translateY(-1px); border-color:var(--card-accent,#7eabff); color:#fff; }
-    [class*='st-key-kpi_card_'] button p { margin:0; line-height:1.45; }
+    [class*='st-key-kpi_card_'] button p { margin:.08rem 0!important; line-height:1.2; }
     [class*='st-key-kpi_card_'] button p:first-child { color:var(--muted); font:500 .64rem 'JetBrains Mono',monospace; letter-spacing:.05em; }
     [class*='st-key-kpi_card_'] button p:nth-child(2) { margin:.25rem 0; color:var(--text); font:700 1.22rem 'JetBrains Mono',monospace; }
     [class*='st-key-kpi_card_'] button p:nth-child(3),[class*='st-key-kpi_card_'] button p:nth-child(4) { color:var(--muted); font:500 .65rem 'JetBrains Mono',monospace; }
@@ -117,9 +117,10 @@ st.markdown(
     .st-key-fleet_priority_card_critical button,.st-key-sidebar_fleet_alert_critical button { border-color:rgba(255,83,83,.62); background:linear-gradient(145deg,rgba(111,24,34,.55),rgba(34,31,45,.9)); color:#ffe5e2; animation:alert-card-pulse 2.2s ease-in-out infinite; }
     .st-key-fleet_priority_card_moderate button,.st-key-sidebar_fleet_alert_moderate button { border-color:rgba(255,138,50,.62); background:linear-gradient(145deg,rgba(112,62,20,.48),rgba(34,37,48,.9)); color:#ffe9d6; }
     .st-key-fleet_priority_card_stable button,.st-key-sidebar_fleet_alert_stable button { border-color:rgba(84,225,140,.35); background:rgba(24,57,54,.32); color:#d9ffe5; }
-    [class*='st-key-fleet_priority_card'] button,[class*='st-key-sidebar_fleet_alert'] button { min-height:8rem; height:100%; padding:.75rem .85rem; white-space:pre-wrap; text-align:left; border-width:1px 1px 1px 3px; border-radius:7px; }
-    [class*='st-key-fleet_priority_card'] [data-testid="stMarkdownContainer"],[class*='st-key-sidebar_fleet_alert'] [data-testid="stMarkdownContainer"],[class*='st-key-selected_asset_card'] [data-testid="stMarkdownContainer"],[class*='st-key-recommended_actions_card'] [data-testid="stMarkdownContainer"] { text-align:left; }
-    [class*='st-key-selected_asset_card'] button,[class*='st-key-recommended_actions_card'] button { min-height:8rem; height:100%; width:100%; padding:.75rem .8rem; white-space:pre-wrap; text-align:left; border:1px solid rgba(126,171,255,.2); border-left:3px solid var(--card-accent,#7eabff); border-radius:7px; background:linear-gradient(180deg,rgba(34,42,61,.66),rgba(34,42,61,.4)); color:var(--text); }
+    [class*='st-key-fleet_priority_card'] button,[class*='st-key-sidebar_fleet_alert'] button { display:flex!important; flex-direction:column; align-items:stretch!important; justify-content:flex-start!important; min-height:6.1rem; height:100%; padding:.5rem .65rem; white-space:pre-wrap; text-align:left!important; border-width:1px 1px 1px 3px; border-radius:7px; }
+    [class*='st-key-fleet_priority_card'] [data-testid="stMarkdownContainer"],[class*='st-key-sidebar_fleet_alert'] [data-testid="stMarkdownContainer"],[class*='st-key-selected_asset_card'] [data-testid="stMarkdownContainer"],[class*='st-key-recommended_actions_card'] [data-testid="stMarkdownContainer"] { width:100%; text-align:left!important; }
+    [class*='st-key-selected_asset_card'] button,[class*='st-key-recommended_actions_card'] button { display:flex!important; flex-direction:column; align-items:stretch!important; justify-content:flex-start!important; min-height:6.1rem; height:100%; width:100%; padding:.5rem .65rem; white-space:pre-wrap; text-align:left!important; border:1px solid rgba(126,171,255,.2); border-left:3px solid var(--card-accent,#7eabff); border-radius:7px; background:linear-gradient(180deg,rgba(34,42,61,.66),rgba(34,42,61,.4)); color:var(--text); }
+    [class*='st-key-selected_asset_card'] button p,[class*='st-key-recommended_actions_card'] button p,[class*='st-key-fleet_priority_card'] button p,[class*='st-key-sidebar_fleet_alert'] button p { margin:.08rem 0!important; line-height:1.2; }
     [class*='st-key-selected_asset_card_critical'] button { border-color:rgba(255,83,83,.58); background:linear-gradient(145deg,rgba(111,24,34,.46),rgba(34,31,45,.94)); animation:alert-card-pulse 2.2s ease-in-out infinite; }
     [class*='st-key-selected_asset_card_moderate'] button { border-color:rgba(255,138,50,.58); background:linear-gradient(145deg,rgba(112,62,20,.34),rgba(34,42,61,.82)); }
     [class*='st-key-recommended_actions_card_critical'] button { border-color:rgba(255,83,83,.5); background:linear-gradient(145deg,rgba(111,24,34,.32),rgba(34,31,45,.82)); }
@@ -164,6 +165,7 @@ st.markdown(
     .matrix-risk-chip.stable { color:#8bf0ad; background:rgba(84,225,140,.12); }
     .heat-cell.alert-critical-card { border-color:rgba(255,83,83,.62); background:linear-gradient(145deg,rgba(111,24,34,.42),rgba(34,31,45,.85)); }
     .heat-cell.alert-moderate-card { border-color:rgba(255,138,50,.56); background:linear-gradient(145deg,rgba(112,62,20,.36),rgba(34,37,48,.85)); }
+    .heat-cell.selected-machine { outline:1px solid rgba(126,171,255,.85); outline-offset:1px; }
     .alert-status-card { padding:.85rem; border:1px solid transparent; border-radius:8px; margin:.65rem 0; }
     .alert-status-card.critical { border-color:rgba(255,83,83,.58); background:linear-gradient(130deg,rgba(111,24,34,.5),rgba(34,31,45,.78)); }
     .alert-status-card.moderate { border-color:rgba(255,138,50,.54); background:linear-gradient(130deg,rgba(112,62,20,.4),rgba(34,37,48,.78)); }
@@ -179,7 +181,7 @@ st.markdown(
     .resource-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.75rem; margin-top:1rem; } .resource-card { display:flex; gap:.75rem; align-items:center; padding:.85rem; background:var(--surface-2); border:1px solid rgba(126,171,255,.14); border-radius:8px; } .resource-icon { width:2.2rem; height:2.2rem; display:grid; place-items:center; border-radius:6px; background:rgba(77,142,255,.18); color:var(--blue); font-size:1.15rem; } .resource-card strong { display:block; margin-top:.2rem; color:var(--text); font-size:.84rem; } .resource-card span { color:var(--muted); font:.65rem 'JetBrains Mono',monospace; }
     @media (max-width:900px) { .ai-diagnostic-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .ai-result-card:last-child { grid-column:1/-1; } }
     @media (max-width:600px) { .ai-diagnostic-grid { grid-template-columns:1fr; } .ai-result-card:last-child { grid-column:auto; } }
-    @media (max-width:800px) { [data-testid="stMainBlockContainer"] { padding:.75rem 1rem 1.5rem; } .banner { align-items:flex-start; flex-direction:column; } .risk-legend { justify-content:flex-start; flex-wrap:wrap; } [class*='st-key-kpi_card_'] button { min-height:6.6rem; padding:.65rem; } .telemetry-head { align-items:flex-start; flex-direction:column; } .anomaly-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .resource-grid { grid-template-columns:1fr; } .maintenance-hero { align-items:flex-start; flex-direction:column; } .topbar > div:last-child { display:none; } }
+    @media (max-width:800px) { [data-testid="stMainBlockContainer"] { padding:.75rem 1rem 1.5rem; } .banner { align-items:flex-start; flex-direction:column; } .risk-legend { justify-content:flex-start; flex-wrap:wrap; } [class*='st-key-kpi_card_'] button { min-height:5.8rem; padding:.5rem; } .telemetry-head { align-items:flex-start; flex-direction:column; } .anomaly-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .resource-grid { grid-template-columns:1fr; } .maintenance-hero { align-items:flex-start; flex-direction:column; } .topbar > div:last-child { display:none; } }
     @media (max-width:800px) { .ai-panel-summary { margin-left:0; } .st-key-risk_distribution_panel,.st-key-risk_matrix_panel { padding:.7rem!important; } }
     </style>
     """,
@@ -209,7 +211,7 @@ def risk_figure(df_risk):
     chart = df_risk.sort_values("risk_score", ascending=True).copy()
     colors = {"Cr\u00edtico":"#ff5353", "Moderado":"#ff8a32", "Estable":"#54e18c"}
     fig = go.Figure(go.Bar(
-        x=chart["risk_score"], y=chart["machine_id"], orientation="h",
+        x=chart["risk_score"], y=[format_machine_id(machine_id) for machine_id in chart["machine_id"]], orientation="h",
         marker_color=[colors.get(level, "#7eabff") for level in chart["risk_level"]],
         text=[f"{value:.0f}%" for value in chart["risk_score"]], textposition="outside",
         hovertemplate="<b>%{y}</b><br>Riesgo: %{x:.1f}%<extra></extra>",
@@ -331,28 +333,33 @@ def fft_figure(df_selected):
     return figure
 
 
-def render_anomaly_heatmap(df_risk):
-    rows = df_risk.sort_values("risk_score", ascending=False).head(6)
+def render_anomaly_heatmap(df_risk, selected_machine):
+    rows = df_risk.sort_values("risk_score", ascending=False).head(6).copy()
+    selected_rows = df_risk[df_risk["machine_id"].astype(str) == str(selected_machine)]
+    if not rows["machine_id"].astype(str).eq(str(selected_machine)).any() and not selected_rows.empty:
+        rows = pd.concat([rows, selected_rows], ignore_index=True)
     columns = st.columns(max(1, len(rows)))
     for index, (_, row) in enumerate(rows.iterrows()):
         level = str(row["risk_level"])
         tone = risk_tone(level)
         alert_class = "alert-critical-card" if tone == "red" else "alert-moderate-card" if tone == "yellow" else ""
+        is_selected = str(row["machine_id"]) == str(selected_machine)
+        selected_class = "selected-machine" if is_selected else ""
         lamp_tone = "critical" if tone == "red" else "moderate" if tone == "yellow" else ""
         lamp = f"<i class='alert-lamp {lamp_tone}'></i>" if lamp_tone else ""
-        action = "ACCIÓN REQUERIDA" if tone == "red" else "REVISIÓN" if tone == "yellow" else "NORMAL"
+        action = "ACCI??N REQUERIDA" if tone == "red" else "REVISI??N" if tone == "yellow" else "NORMAL"
         machine_id = row["machine_id"]
         with columns[index]:
             st.markdown(
-                f"<div class='heat-cell {alert_class}'><strong class='{tone}'>{lamp}{html.escape(str(machine_id))}</strong>"
+                f"<div class='heat-cell {alert_class} {selected_class}'><strong class='{tone}'>{lamp}{html.escape(format_machine_id(machine_id))}</strong>"
                 f"<span class='{tone}'>{lamp}RIESGO {row['risk_score']:.0f}%</span><span class='{tone}'>{action}</span>"
                 f"<span class='{tone}'>ESTADO {html.escape(level.upper())}</span></div>",
                 unsafe_allow_html=True,
             )
             if st.button(
-                "Abrir diagnóstico",
+                "Abrir diagn??stico",
                 key=f"heatmap_diagnostic_{index}_{machine_id}",
-                help=f"Abrir el diagnóstico del activo {machine_id}",
+                help=f"Abrir el diagn??stico de {format_machine_id(machine_id)}",
                 width="stretch",
             ):
                 navigate_to_section(machine_id, "anomalies")
@@ -382,7 +389,7 @@ def render_sidebar_ai_card(df_risk, selected_machine, machine_row):
         alert_icon = "\U0001F534" if alert_is_critical else "\U0001F7E0"
         with st.container(key=f"sidebar_fleet_alert_{alert_tone}"):
             if st.button(
-                f"{alert_icon} {alert_count} activos {alert_level}\n\nMAQ-{str(fleet_top['machine_id']).zfill(2)} \u00b7 {float(fleet_top['risk_score']):.1f}%\n\nAbrir diagn\u00f3stico \u2192",
+                f"{alert_icon} {alert_count} activos {alert_level}\n\n{format_machine_id(fleet_top['machine_id'])} \u00b7 {float(fleet_top['risk_score']):.1f}%\n\nAbrir diagn\u00f3stico \u2192",
                 key="sidebar_fleet_alert",
                 type="primary",
                 width="stretch",
@@ -464,7 +471,7 @@ def render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols
                 ) if machine_id.isdigit() else (1, machine_id.casefold()),
             )
             machine_options = {
-                f"MAQ-{str(machine_id).zfill(2) if str(machine_id).isdigit() else machine_id}": machine_id
+                format_machine_id(machine_id): machine_id
                 for machine_id in machine_ids
             }
             label_by_machine = {machine_id: label for label, machine_id in machine_options.items()}
@@ -496,7 +503,7 @@ def render_sidebar(df_machines, df_risk, data_source, model_source, feature_cols
         criticality_for_status = {"Crítico": "Alta", "Moderado": "Media", "Estable": "Baja"}
         selected_criticality = [criticality_for_status[level] for level in selected_status]
         machine_row = df_machines[df_machines["machine_id"] == selected_machine].iloc[0]
-        metadata = [("ID", machine_row["machine_id"]), ("Tipo", machine_row["type"]), ("Ubicacion", machine_row["location"]), ("Operacion", f"{machine_row['operating_hours']} h"), ("Ultimo mant.", machine_row["last_maintenance"])]
+        metadata = [("ID", format_machine_id(machine_row["machine_id"])), ("Tipo", machine_row["type"]), ("Ubicacion", machine_row["location"]), ("Operacion", f"{machine_row['operating_hours']} h"), ("Ultimo mant.", machine_row["last_maintenance"])]
         rows = "".join(f"<div class='meta-row'><span>{label}</span><strong>{html.escape(str(value))}</strong></div>" for label, value in metadata)
         st.markdown(f"<div class='sidebar-info-card'><div class='eyebrow'>ACTIVO SELECCIONADO</div>{rows}</div>", unsafe_allow_html=True)
         render_sidebar_ai_card(df_risk, selected_machine, machine_row)
@@ -515,6 +522,9 @@ try:
         live_df, data_source = load_live_demo_data()
         dashboard_live_df = simulation_snapshot(live_df)
         df_machines, df_risk, df_telemetry, df_errors = compute_risk_from_model(dashboard_live_df)
+        for frame in (df_machines, df_risk, df_telemetry, df_errors):
+            if "machine_id" in frame.columns:
+                frame["machine_id"] = frame["machine_id"].astype(str)
         model, feature_cols, meta, model_source = get_model()
 except Exception as error:
     st.error(f"Error al cargar datos o modelo: {error}")
@@ -553,7 +563,7 @@ if str(selected_machine) != str(fleet_top["machine_id"]) and fleet_top["risk_lev
 action_items_html = "".join(
     f"<li class='alert-action {risk_tone(level)}'>"
     f"<i class='alert-lamp {'critical' if risk_tone(level) == 'red' else 'moderate' if risk_tone(level) == 'yellow' else ''}'></i>"
-    f"<strong>{html.escape(machine_id)}:</strong> {html.escape(action)}</li>"
+    f"<strong>{html.escape(format_machine_id(machine_id))}:</strong> {html.escape(action)}</li>"
     for machine_id, action, level in recommended_actions
 )
 with st.container(border=True, key="fleet_ai_panel"):
@@ -571,7 +581,7 @@ with st.container(border=True, key="fleet_ai_panel"):
         selected_card_tone = "critical" if selected_tone == "red" else "moderate" if selected_tone == "yellow" else "stable"
         with st.container(key=f"selected_asset_card_{selected_card_tone}"):
             if st.button(
-                f"{selected_lamp} ACTIVO SELECCIONADO\n\nMAQ-{str(selected_machine).zfill(2)} \u00b7 {selected_risk['risk_level']} \u00b7 {selected_risk['risk_score']:.1f}%\n\nPrioridad: {selected_priority}\n\n\u2197 Abrir telemetr\u00eda",
+                f"{selected_lamp} ACTIVO SELECCIONADO\n\n{format_machine_id(selected_machine)} \u00b7 {selected_risk['risk_level']} \u00b7 {selected_risk['risk_score']:.1f}%\n\nPrioridad: {selected_priority}\n\n\u2197 Abrir telemetr\u00eda",
                 key="selected_asset_card",
                 type="secondary",
                 width="stretch",
@@ -582,7 +592,7 @@ with st.container(border=True, key="fleet_ai_panel"):
         with st.container(key=f"fleet_priority_card_{fleet_alert_class}"):
             fleet_icon = "\U0001F534" if critical_count else "\U0001F7E0" if moderate_count else "\U0001F7E2"
             if st.button(
-                f"{fleet_icon} PRIORIDAD DE FLOTA\n\nMAQ-{str(fleet_top['machine_id']).zfill(2)} \u00b7 {fleet_top['risk_level']} \u00b7 {fleet_top['risk_score']:.1f}%\n\n{critical_count} cr\u00edticos \u00b7 {moderate_count} moderados\n\n\u2197 Abrir diagn\u00f3stico",
+                f"{fleet_icon} PRIORIDAD DE FLOTA\n\n{format_machine_id(fleet_top['machine_id'])} \u00b7 {fleet_top['risk_level']} \u00b7 {fleet_top['risk_score']:.1f}%\n\n{critical_count} cr\u00edticos \u00b7 {moderate_count} moderados\n\n\u2197 Abrir diagn\u00f3stico",
                 key="fleet_priority_diagnostic",
                 type="secondary",
                 width="stretch",
@@ -592,7 +602,7 @@ with st.container(border=True, key="fleet_ai_panel"):
     with diagnostic_columns[2]:
         actions_card_tone = "critical" if critical_count else "moderate" if moderate_count else "stable"
         actions_summary = "\n".join(
-            f"\u2022 MAQ-{machine_id}: {action}"
+            f"\u2022 {format_machine_id(machine_id)}: {action}"
             for machine_id, action, _level in recommended_actions
         )
         with st.container(key=f"recommended_actions_card_{actions_card_tone}"):
@@ -617,13 +627,18 @@ st.markdown("<div style='height:.35rem'></div>", unsafe_allow_html=True)
 
 
 if st.session_state.active_section == "overview":
-    overview_risk = df_risk.sort_values("risk_score", ascending=False).head(6)
+    overview_risk = df_risk.sort_values("risk_score", ascending=False).head(6).copy()
+    selected_overview_row = df_risk[df_risk["machine_id"].astype(str) == str(selected_machine)]
+    if not overview_risk["machine_id"].astype(str).eq(str(selected_machine)).any() and not selected_overview_row.empty:
+        overview_risk = pd.concat([overview_risk, selected_overview_row], ignore_index=True)
+        overview_risk = overview_risk.sort_values("risk_score", ascending=False)
+    overview_matrix = overview_risk.copy()
     kpi_columns = st.columns(4)
     kpi_cards = [
-        ("M\u00c1QUINAS MONITOREADAS", len(df_machines), f"{len(df_machines)} unidades \u00b7 ver telemetr\u00eda", "blue", "telemetry", fleet_top["machine_id"]),
-        ("RIESGO CR\u00cdTICO", critical_count, "Abrir anomal\u00edas de flota", "red" if critical_count else "green", "anomalies", fleet_top["machine_id"]),
-        ("VENTANA DE REVISI\u00d3N", review_window, f"{review_detail} \u00b7 abrir plan", review_tone, "maintenance", fleet_top["machine_id"]),
-        ("RIESGO PROMEDIO", f"{avg_risk:.1f}%", "Abrir diagn\u00f3stico de flota", "red" if fleet_tone == "red" else "orange" if fleet_tone == "yellow" else "green", "anomalies", fleet_top["machine_id"]),
+        ("M\u00c1QUINAS MONITOREADAS", len(df_machines), f"{len(df_machines)} unidades \u00b7 ver telemetr\u00eda", "blue", "telemetry", selected_machine),
+        ("RIESGO CR\u00cdTICO", critical_count, f"{critical_count} alertas \u00b7 abrir {format_machine_id(selected_machine)}", "red" if critical_count else "green", "anomalies", selected_machine),
+        ("VENTANA DE REVISI\u00d3N", review_window, f"{review_detail} \u00b7 abrir plan", review_tone, "maintenance", selected_machine),
+        ("RIESGO PROMEDIO", f"{avg_risk:.1f}%", f"Promedio de flota \u00b7 ver {format_machine_id(selected_machine)}", "red" if fleet_tone == "red" else "orange" if fleet_tone == "yellow" else "green", "anomalies", selected_machine),
     ]
     for index, (column, card) in enumerate(zip(kpi_columns, kpi_cards)):
         label, value, detail, tone, section_id, machine_id = card
@@ -642,7 +657,7 @@ if st.session_state.active_section == "overview":
         st.markdown(
             "<div class='section-head'><div><h2>Distribucion de riesgo operacional por activo</h2>"
             "<p>Probabilidad estimada de falla en las proximas 24 horas.</p></div>"
-            "<span class='pill'>FLEET AVG</span></div>",
+            "<span class='pill'>TOP 6 + SELECCIONADA</span></div>",
             unsafe_allow_html=True,
         )
         render_risk_legend()
@@ -650,15 +665,15 @@ if st.session_state.active_section == "overview":
     with st.container(border=True, key="risk_matrix_panel"):
         st.markdown(
             "<div class='section-head'><div><h2>Matriz diagnostica de flota</h2>"
-            "<p>Ranking calculado desde la ultima lectura disponible.</p></div></div>",
+            "<p>Top de flota m\u00e1s la m\u00e1quina seleccionada.</p></div></div>",
             unsafe_allow_html=True,
         )
-        render_risk_table(overview_risk, selected_status, selected_criticality)
+        render_risk_table(overview_matrix, selected_status, selected_criticality)
 
 if st.session_state.active_section == "telemetry":
     with st.container(border=True, key="live_telemetry_panel"):
         st.markdown(
-            "<div class='section-head'><div><h2>Telemetria en Vivo</h2>"
+            f"<div class='section-head'><div><h2>Telemetr\u00eda en Vivo \u00b7 {format_machine_id(selected_machine)}</h2>"
             "<p>Vista historica de las lecturas disponibles para el activo seleccionado.</p></div>"
             "<span class='pill'>HISTORICO LIVE_DEMO</span></div>",
             unsafe_allow_html=True,
@@ -720,7 +735,7 @@ if st.session_state.active_section == "anomalies":
     selected_tone = risk_tone(selected_risk["risk_level"])
     selected_alert_class = "critical" if selected_tone == "red" else "moderate" if selected_tone == "yellow" else "stable"
     selected_lamp = "critical" if selected_tone == "red" else "moderate" if selected_tone == "yellow" else ""
-    st.markdown(f"<div class='telemetry-head {'alert-surface-critical alert-critical-card' if selected_tone == 'red' else 'alert-surface-moderate' if selected_tone == 'yellow' else ''}'><div><span class='machine-tag' style='color:{risk_color(selected_risk['risk_level'])}'>&#128269;</span><div><h2>Módulo de diagnóstico espectral y detección de anomalías</h2><p>Modelado FFT y clasificación de anomalías sobre el activo seleccionado.</p></div></div><span class='pill {risk_pill(selected_risk['risk_level'])}'><i class='alert-lamp {selected_lamp}'></i>{html.escape(str(selected_risk['risk_level']).upper())}</span></div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='telemetry-head {'alert-surface-critical alert-critical-card' if selected_tone == 'red' else 'alert-surface-moderate' if selected_tone == 'yellow' else ''}'><div><span class='machine-tag' style='color:{risk_color(selected_risk['risk_level'])}'>&#128269;</span><div><h2>Diagn\u00f3stico de {html.escape(format_machine_id(selected_machine))}</h2><p>Modelado FFT y clasificaci\u00f3n de anomal\u00edas sobre el activo seleccionado.</p></div></div><span class='pill {risk_pill(selected_risk['risk_level'])}'><i class='alert-lamp {selected_lamp}'></i>{html.escape(str(selected_risk['risk_level']).upper())}</span></div>", unsafe_allow_html=True)
     anomaly_col, heat_col = st.columns([1, 2])
     with anomaly_col:
         confidence = float(selected_risk["risk_score"])
@@ -731,7 +746,7 @@ if st.session_state.active_section == "anomalies":
             navigate_to_section(selected_machine, "telemetry")
     with heat_col:
         st.markdown("<div class='section-head'><div><h3>Mapa de estado por activo</h3><p>Vista preparada para conectar subsistemas y sensores reales.</p></div></div>", unsafe_allow_html=True)
-        render_anomaly_heatmap(df_risk)
+        render_anomaly_heatmap(df_risk, selected_machine)
     fft_col, events_col = st.columns([7, 5])
     with fft_col:
         st.markdown("<div class='section-head'><div><h3>Espectro de frecuencia vibracional (FFT)</h3><p>Acelerómetro triaxial · Eje de vibración de la máquina seleccionada.</p></div><span class='pill'>BPFO ANALYSIS</span></div>", unsafe_allow_html=True)
@@ -741,7 +756,7 @@ if st.session_state.active_section == "anomalies":
         st.markdown("<div class='section-head'><div><h3>Registro crítico de eventos</h3><p>Últimas señales y diagnósticos del activo.</p></div></div>", unsafe_allow_html=True)
         selected_errors = df_errors[df_errors["machine_id"] == selected_machine].sort_values("timestamp", ascending=False).head(3)
         if selected_errors.empty:
-            st.success(f"Sin eventos registrados para {selected_machine}.")
+            st.success(f"Sin eventos registrados para {format_machine_id(selected_machine)}.")
         else:
             for _, event in selected_errors.iterrows():
                 st.markdown(f"<div class='sidebar-card'><div class='eyebrow'>{html.escape(str(event['timestamp']))} · {html.escape(str(event['error_code']))}</div><div style='color:var(--text);font-size:.78rem;margin-top:.35rem'>{html.escape(str(event['description']))}</div></div>", unsafe_allow_html=True)
@@ -756,7 +771,7 @@ if st.session_state.active_section == "maintenance":
         top_lamp = "critical" if top_tone == "red" else "moderate" if top_tone == "yellow" else ""
         top_action = "ACCIÓN REQUERIDA" if top_tone == "red" else "REVISIÓN RECOMENDADA" if top_tone == "yellow" else "OPERACIÓN NORMAL"
         st.markdown(f"<div class='section-head'><div><h2>Plan de mantenimiento</h2><p>Cola priorizada según el estado real de cada activo.</p></div><span class='pill {risk_pill(top['risk_level'])}'>{top_action}</span></div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='maintenance-hero {'alert-surface-critical alert-critical-card' if top_tone == 'red' else 'alert-surface-moderate' if top_tone == 'yellow' else ''}' style='--state-color:{top_color}'><div><span class='pill {risk_pill(top['risk_level'])}'><i class='alert-lamp {top_lamp}'></i>{top_action}</span><span class='eyebrow' style='margin-left:.55rem'>ESTADO DEL ACTIVO</span><h2>{html.escape(str(top['machine_id']))} · {html.escape(str(top['risk_level']))}</h2><p>Riesgo estimado: <strong>{top['risk_score']:.0f}%</strong>. Acción sugerida: <strong>{html.escape(str(top['priority']))}</strong>. {int(top['days_since_maintenance'])} días desde el último mantenimiento.</p></div><span class='pill'>LIVE_DEMO</span></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='maintenance-hero {'alert-surface-critical alert-critical-card' if top_tone == 'red' else 'alert-surface-moderate' if top_tone == 'yellow' else ''}' style='--state-color:{top_color}'><div><span class='pill {risk_pill(top['risk_level'])}'><i class='alert-lamp {top_lamp}'></i>{top_action}</span><span class='eyebrow' style='margin-left:.55rem'>PRIORIDAD DE FLOTA</span><h2>{html.escape(format_machine_id(top['machine_id']))} · {html.escape(str(top['risk_level']))}</h2><p>Riesgo estimado: <strong>{top['risk_score']:.0f}%</strong>. Acción sugerida: <strong>{html.escape(str(top['priority']))}</strong>. {int(top['days_since_maintenance'])} días desde el último mantenimiento.</p></div><span class='pill'>LIVE_DEMO</span></div>", unsafe_allow_html=True)
     else:
         st.markdown("<div class='section-head'><div><h2>Plan de mantenimiento</h2><p>Sin activos disponibles para priorizar.</p></div><span class='pill pill-green'>OPERACIÓN NORMAL</span></div>", unsafe_allow_html=True)
     st.markdown("<div class='resource-grid'><div class='resource-card'><div class='resource-icon'>&#128101;</div><div><span>TECNICOS DISPONIBLES</span><strong>3 equipos de guardia</strong><span style='color:var(--green)'>Turno operativo</span></div></div><div class='resource-card'><div class='resource-icon'>&#128230;</div><div><span>REPUESTOS CRITICOS</span><strong>Inventario por conectar</strong><span>Fuente preparada para integración</span></div></div><div class='resource-card'><div class='resource-icon'>&#9201;</div><div><span>MTBF PROYECTADO</span><strong>Modelo en ejecución</strong><span>Calculado al conectar historial</span></div></div></div>", unsafe_allow_html=True)
@@ -766,7 +781,8 @@ if st.session_state.active_section == "maintenance":
         row_tone = risk_tone(row["risk_level"])
         row_alert_class = "alert-critical-card" if row_tone == "red" else "alert-moderate-card" if row_tone == "yellow" else ""
         row_lamp = "critical" if row_tone == "red" else "moderate" if row_tone == "yellow" else ""
-        st.markdown(f"<div class='priority {row_alert_class}' style='border-left-color:{tone}'><div class='priority-title'><span class='rank-badge' style='background:{tone}'>{rank}</span><i class='alert-lamp {row_lamp}'></i>{html.escape(str(row['machine_id']))} — {html.escape(str(row['type']))} <span class='pill {risk_pill(row['risk_level'])}'>{row['risk_score']:.0f}% · {html.escape(str(row['risk_level']).upper())}</span></div><div class='priority-copy'>Acción: {html.escape(str(row['priority']))} · Ubicación: {html.escape(str(row['location']))}</div><div class='priority-meta'><span>Criticidad: {html.escape(str(row['criticality']))}</span><span>{int(row['days_since_maintenance'])} días sin mantenimiento</span><span>Prioridad: {row['priority_score']:.0f}</span></div></div>", unsafe_allow_html=True)
+        selected_badge = "<span class='pill'>SELECCIONADA</span>" if str(row["machine_id"]) == str(selected_machine) else ""
+        st.markdown(f"<div class='priority {row_alert_class}' style='border-left-color:{tone}'><div class='priority-title'><span class='rank-badge' style='background:{tone}'>{rank}</span><i class='alert-lamp {row_lamp}'></i>{html.escape(format_machine_id(row['machine_id']))} {selected_badge} — {html.escape(str(row['type']))} <span class='pill {risk_pill(row['risk_level'])}'>{row['risk_score']:.0f}% · {html.escape(str(row['risk_level']).upper())}</span></div><div class='priority-copy'>Acción: {html.escape(str(row['priority']))} · Ubicación: {html.escape(str(row['location']))}</div><div class='priority-meta'><span>Criticidad: {html.escape(str(row['criticality']))}</span><span>{int(row['days_since_maintenance'])} días sin mantenimiento</span><span>Prioridad: {row['priority_score']:.0f}</span></div></div>", unsafe_allow_html=True)
         if row_tone in {"red", "yellow"}:
             action_cols = st.columns([1, 1, 4])
             with action_cols[0]:

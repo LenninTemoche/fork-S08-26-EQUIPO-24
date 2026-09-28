@@ -4,6 +4,12 @@ import pandas as pd
 import streamlit as st
 
 
+def format_machine_id(machine_id):
+    """Return a stable, readable label while keeping the raw ID for data filters."""
+    value = str(machine_id)
+    return f"MAQ-{value.zfill(2) if value.isdigit() else value}"
+
+
 def navigate_to_section(machine_id, section_id):
     """Open a dashboard section with the requested asset selected."""
     st.session_state.active_section = section_id

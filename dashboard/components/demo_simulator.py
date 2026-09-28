@@ -3,7 +3,7 @@
 import pandas as pd
 import streamlit as st
 
-from components.machine_detail import navigate_to_diagnostic_matrix
+from components.machine_detail import format_machine_id, navigate_to_diagnostic_matrix
 from utils.model_loader import predict_probabilities
 
 
@@ -126,7 +126,7 @@ def render_demo_simulator(
         control_cols = st.columns([1.35, 2.7, 1.5, 1.0], vertical_alignment="center")
         with control_cols[0]:
             st.markdown(
-                f"<div class='simulator-title'><span class='simulator-machine'>{machine_id}</span><div><strong>Telemetría de demostración</strong><span>Reproducción histórica del activo</span></div></div>",
+                f"<div class='simulator-title'><span class='simulator-machine'>{format_machine_id(machine_id)}</span><div><strong>Telemetría de demostración</strong><span>Reproducción histórica del activo</span></div></div>",
                 unsafe_allow_html=True,
             )
         with control_cols[1]:
@@ -220,7 +220,7 @@ def render_demo_simulator(
         )
         selected_rows = current_rows[current_rows["machine_id"] == str(machine_id)]
         if selected_rows.empty:
-            st.warning(f"No hay una lectura para la máquina {machine_id} en este periodo.")
+            st.warning(f"No hay una lectura para la máquina {format_machine_id(machine_id)} en este periodo.")
             return
 
         selected_row = selected_rows.iloc[0]
@@ -233,14 +233,14 @@ def render_demo_simulator(
             st.markdown(
                 f"<div class='fleet-alert-banner critical alert-surface-critical alert-critical-card'>"
                 f"<i class='alert-lamp critical'></i><span class='alert-copy'><strong>ALERTA CRÍTICA</strong> · "
-                f"Activo {machine_id} · riesgo {probability:.1%} en el horizonte de 24 h.</span></div>",
+                f"Activo {format_machine_id(machine_id)} · riesgo {probability:.1%} en el horizonte de 24 h.</span></div>",
                 unsafe_allow_html=True,
             )
         elif risk_level == "Moderado":
             st.markdown(
                 f"<div class='fleet-alert-banner moderate alert-surface-moderate'>"
                 f"<i class='alert-lamp moderate'></i><span class='alert-copy'><strong>RIESGO MODERADO</strong> · "
-                f"Activo {machine_id} · {probability:.1%}. Conviene revisar la tendencia.</span></div>",
+                f"Activo {format_machine_id(machine_id)} · {probability:.1%}. Conviene revisar la tendencia.</span></div>",
                 unsafe_allow_html=True,
             )
         else:
@@ -306,7 +306,7 @@ def render_demo_simulator(
                         alert_cols = st.columns([1.1, 0.7, 2.8, 1.1], vertical_alignment="center")
                         with alert_cols[0]:
                             st.markdown(
-                                f"<strong><i class='alert-lamp {alert_tone}'></i>{alert['machine_id']} | {alert['risk_level']}</strong>",
+                                f"<strong><i class='alert-lamp {alert_tone}'></i>{format_machine_id(alert['machine_id'])} | {alert['risk_level']}</strong>",
                                 unsafe_allow_html=True,
                             )
                         with alert_cols[1]:
